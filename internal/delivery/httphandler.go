@@ -8,6 +8,7 @@ import (
 )
 
 // Server Handlers
+
 func AddToCartHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("AddToCartHandler")
 }
