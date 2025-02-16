@@ -2,11 +2,6 @@ package domain
 
 type Sku = int64
 
-type UserCart struct {
-	Items      []Item
-	TotalPrice uint32
-}
-
 type Item struct {
 	SkuID Sku    `json:"sku_id"`
 	Name  string `json:"name"`
@@ -14,8 +9,9 @@ type Item struct {
 	Price uint32 `json:"price"`
 }
 
-type AddToCartRequest struct {
-	Count uint16 `json:"count"`
+type UserCart struct {
+	Items []Item `json:"items"`
+	//TotalPrice uint32 `json:"total_price"`
 }
 
 type ClientRequest struct {
