@@ -36,7 +36,7 @@ func (r *Repository) AddToCart(_ context.Context, skuID int64, userID uint64, co
 
 	for i, item := range cart.Items {
 		if item.SkuID == skuID {
-			cart.Items[i].Count += count // Увеличиваем количество
+			cart.Items[i].Count += count
 			itemFound = true
 			break
 		}
@@ -65,13 +65,11 @@ func (r *Repository) RemoveFromCart(_ context.Context, skuID int64, userID uint6
 	//var deletedItem uint32
 	for _, item := range cart.Items {
 		if item.SkuID == skuID {
-			//deletedItem = uint32(item.Count) * item.Price
 			continue
 		}
 		newItem = append(newItem, item)
 	}
 	cart.Items = newItem
-	//cart.TotalPrice -= deletedItem
 
 	if len(cart.Items) == 0 {
 		delete(r.cartStorage, userID)
@@ -94,7 +92,7 @@ func (r *Repository) ClearCart(_ context.Context, userID uint64) (*domain.UserCa
 
 func (r *Repository) GetCart(_ context.Context, userId uint64) ([]byte, error) {
 	if _, ok := r.cartStorage[userId]; !ok {
-		return nil, errors.New("user not found")
+		return nil, nil
 	}
 	var totalPrice uint32
 	for _, item := range r.cartStorage[userId].Items {

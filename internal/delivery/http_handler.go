@@ -12,7 +12,7 @@ import (
 	"strconv"
 )
 
-var ErrorEmtpyCientBody = errors.New("body is empty")
+var ErrorEmptyClientBody = errors.New("body is empty")
 
 // Server
 type CartServer interface {
@@ -66,7 +66,7 @@ func (s Server) AddToCartHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, err = s.cartService.AddToCart(r.Context(), skuId, userId, addToCartRequest.Count)
 	if err != nil {
-		if errors.Is(err, ErrorEmtpyCientBody) {
+		if errors.Is(err, ErrorEmptyClientBody) {
 			w.WriteHeader(http.StatusPreconditionFailed)
 			return
 		}
@@ -110,21 +110,16 @@ func (s Server) GetCartHandler(w http.ResponseWriter, r *http.Request) {
 
 	rawUserID := r.PathValue("user_id")
 	userId, err := strconv.ParseUint(rawUserID, 10, 64)
-	if err != nil {
+	if err != nil || userId < 1 {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	if userId < 1 {
+	_, err = s.cartService.GetCart(r.Context(), userId)
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-	cart, err := s.cartService.GetCart(r.Context(), userId)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-	}
-	fmt.Fprint(w, string(cart))
 }
 
 // Client Handlers
@@ -145,7 +140,7 @@ func GetProductHandler(sku int64) (*domain.ClientRequest, error) {
 		fmt.Println(err)
 	}
 	if resp.StatusCode != http.StatusOK {
-		return nil, ErrorEmtpyCientBody
+		return nil, ErrorEmptyClientBody
 	}
 	defer resp.Body.Close()
 	buffer, err := io.ReadAll(resp.Body)
