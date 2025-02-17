@@ -115,11 +115,12 @@ func (s Server) GetCartHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.cartService.GetCart(r.Context(), userId)
+	cart, err := s.cartService.GetCart(r.Context(), userId)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	fmt.Fprint(w, string(cart))
 }
 
 // Client Handlers
