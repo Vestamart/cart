@@ -11,7 +11,6 @@ type Item struct {
 
 type UserCart struct {
 	Items []Item `json:"items"`
-	//TotalPrice uint32 `json:"total_price"`
 }
 
 type ClientRequest struct {

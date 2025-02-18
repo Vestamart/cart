@@ -87,19 +87,19 @@ func (r *Repository) ClearCart(_ context.Context, userID uint64) (*domain.UserCa
 		delete(r.cartStorage, userID)
 	}
 
-	return nil, nil
+	return &domain.UserCart{}, nil
 }
 
-func (r *Repository) GetCart(_ context.Context, userId uint64) ([]byte, error) {
-	if _, ok := r.cartStorage[userId]; !ok {
-		return nil, nil
+func (r *Repository) GetCart(_ context.Context, userID uint64) ([]byte, error) {
+	if _, ok := r.cartStorage[userID]; !ok {
+		return []byte("{}"), nil
 	}
 	var totalPrice uint32
-	for _, item := range r.cartStorage[userId].Items {
+	for _, item := range r.cartStorage[userID].Items {
 		totalPrice += item.Price * uint32(item.Count)
 	}
 	getCartRequest := GetCartRequest{
-		Items:      r.cartStorage[userId].Items,
+		Items:      r.cartStorage[userID].Items,
 		TotalPrice: totalPrice,
 	}
 	if jsonData, err := json.Marshal(getCartRequest); err != nil {

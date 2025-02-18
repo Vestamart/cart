@@ -19,7 +19,7 @@ type CartServer interface {
 	AddToCart(_ context.Context, skuID int64, userID uint64, count uint16) (*domain.UserCart, error)
 	RemoveFromCart(_ context.Context, skiID int64, userID uint64) (*domain.UserCart, error)
 	ClearCart(_ context.Context, userID uint64) (*domain.UserCart, error)
-	GetCart(_ context.Context, userId uint64) ([]byte, error)
+	GetCart(_ context.Context, userID uint64) ([]byte, error)
 }
 type Server struct {
 	cartService CartServer
@@ -40,17 +40,21 @@ func (s Server) AddToCartHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	rawUserID := r.PathValue("user_id")
-	userId, err := strconv.ParseUint(rawUserID, 10, 64)
-
-	RawSkuID := r.PathValue("sku_id")
-	skuId, err := strconv.ParseInt(RawSkuID, 10, 64)
-
+	userID, err := strconv.ParseUint(rawUserID, 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	body, _ := io.ReadAll(r.Body)
 
+	RawSkuID := r.PathValue("sku_id")
+	skuID, err := strconv.ParseInt(RawSkuID, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	defer r.Body.Close()
+	body, _ := io.ReadAll(r.Body)
 	var addToCartRequest AddToCartRequest
 
 	if err := json.Unmarshal(body, &addToCartRequest); err != nil {
@@ -64,7 +68,7 @@ func (s Server) AddToCartHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.cartService.AddToCart(r.Context(), skuId, userId, addToCartRequest.Count)
+	_, err = s.cartService.AddToCart(r.Context(), skuID, userID, addToCartRequest.Count)
 	if err != nil {
 		if errors.Is(err, ErrorEmptyClientBody) {
 			w.WriteHeader(http.StatusPreconditionFailed)
@@ -82,26 +86,31 @@ func (s Server) RemoveFromCartHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	rawUserID := r.PathValue("user_id")
-	userId, err := strconv.ParseUint(rawUserID, 10, 64)
-	RawSkuID := r.PathValue("sku_id")
-	skuId, err := strconv.ParseInt(RawSkuID, 10, 64)
+	userID, err := strconv.ParseUint(rawUserID, 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	_, err = s.cartService.RemoveFromCart(r.Context(), skuId, userId)
+	RawSkuID := r.PathValue("sku_id")
+	skuID, err := strconv.ParseInt(RawSkuID, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	_, err = s.cartService.RemoveFromCart(r.Context(), skuID, userID)
 }
 
 func (s Server) ClearCartHandler(w http.ResponseWriter, r *http.Request) {
 	rawUserID := r.PathValue("user_id")
-	userId, err := strconv.ParseUint(rawUserID, 10, 64)
+	userID, err := strconv.ParseUint(rawUserID, 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	_, err = s.cartService.ClearCart(r.Context(), userId)
+	_, err = s.cartService.ClearCart(r.Context(), userID)
 
 }
 
@@ -109,13 +118,13 @@ func (s Server) GetCartHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	rawUserID := r.PathValue("user_id")
-	userId, err := strconv.ParseUint(rawUserID, 10, 64)
-	if err != nil || userId < 1 {
+	userID, err := strconv.ParseUint(rawUserID, 10, 64)
+	if err != nil || userID < 1 {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	cart, err := s.cartService.GetCart(r.Context(), userId)
+	cart, err := s.cartService.GetCart(r.Context(), userID)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -131,24 +140,24 @@ func GetProductHandler(sku int64) (*domain.ClientRequest, error) {
 
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonBody))
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		return nil, ErrorEmptyClientBody
 	}
-	defer resp.Body.Close()
 	buffer, err := io.ReadAll(resp.Body)
 
 	var clientRequest domain.ClientRequest
 	if json.Unmarshal(buffer, &clientRequest) != nil {
-		fmt.Println("failed parsing request body")
+		return nil, errors.New("failed parsing request body")
 	}
 	return &clientRequest, nil
 }

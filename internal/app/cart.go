@@ -8,9 +8,9 @@ import (
 
 type CartRepository interface {
 	AddToCart(_ context.Context, skuID int64, userID uint64, count uint16) (*domain.UserCart, error)
-	RemoveFromCart(_ context.Context, skiID int64, userID uint64) (*domain.UserCart, error)
+	RemoveFromCart(_ context.Context, skuID int64, userID uint64) (*domain.UserCart, error)
 	ClearCart(_ context.Context, userID uint64) (*domain.UserCart, error)
-	GetCart(_ context.Context, userId uint64) ([]byte, error)
+	GetCart(_ context.Context, userID uint64) ([]byte, error)
 }
 
 type CartService struct {
@@ -33,10 +33,10 @@ func (s *CartService) RemoveFromCart(ctx context.Context, skiID int64, userID ui
 	return s.repository.RemoveFromCart(ctx, skiID, userID)
 }
 
-func (s *CartService) ClearCart(ctx context.Context, userId uint64) (*domain.UserCart, error) {
-	return s.repository.ClearCart(ctx, userId)
+func (s *CartService) ClearCart(ctx context.Context, userID uint64) (*domain.UserCart, error) {
+	return s.repository.ClearCart(ctx, userID)
 }
 
-func (s *CartService) GetCart(ctx context.Context, userId uint64) ([]byte, error) {
-	return s.repository.GetCart(ctx, userId)
+func (s *CartService) GetCart(ctx context.Context, userID uint64) ([]byte, error) {
+	return s.repository.GetCart(ctx, userID)
 }
