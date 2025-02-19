@@ -2,38 +2,26 @@ package repository
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"github.com/vestamart/homework/internal/delivery"
 	"github.com/vestamart/homework/internal/domain"
 )
 
 type CartStorage = map[uint64]domain.UserCart
 
-type Repository struct {
+type InMemoryRepository struct {
 	cartStorage CartStorage
 }
 
-type GetCartRequest struct {
-	Items      []domain.Item `json:"items"`
-	TotalPrice uint32        `json:"total_price"`
+func NewRepository(cap int) *InMemoryRepository {
+	return &InMemoryRepository{cartStorage: make(CartStorage, cap)}
 }
 
-func NewRepository(cap int) *Repository {
-	return &Repository{cartStorage: make(CartStorage, cap)}
-}
-
-func (r *Repository) AddToCart(_ context.Context, skuID int64, userID uint64, count uint16) (*domain.UserCart, error) {
+func (r *InMemoryRepository) AddToCart(_ context.Context, skuID int64, userID uint64, count uint16) (*domain.UserCart, error) {
 	cart, ok := r.cartStorage[userID]
 	if !ok {
 		cart = domain.UserCart{}
 	}
 	var itemFound bool
-	clientRequest, err := delivery.GetProductHandler(skuID)
-	if err != nil {
-		return nil, err
-	}
-
 	for i, item := range cart.Items {
 		if item.SkuID == skuID {
 			cart.Items[i].Count += count
@@ -45,24 +33,21 @@ func (r *Repository) AddToCart(_ context.Context, skuID int64, userID uint64, co
 	if !itemFound {
 		cart.Items = append(cart.Items, domain.Item{
 			SkuID: skuID,
-			Name:  clientRequest.Name,
 			Count: count,
-			Price: clientRequest.Price,
 		})
 	}
-	r.cartStorage[userID] = cart
 
+	r.cartStorage[userID] = cart
 	return &cart, nil
 }
 
-func (r *Repository) RemoveFromCart(_ context.Context, skuID int64, userID uint64) (*domain.UserCart, error) {
+func (r *InMemoryRepository) RemoveFromCart(_ context.Context, skuID int64, userID uint64) (*domain.UserCart, error) {
 	cart, ok := r.cartStorage[userID]
 	if !ok {
 		cart = domain.UserCart{}
 	}
 
 	var newItem []domain.Item
-	//var deletedItem uint32
 	for _, item := range cart.Items {
 		if item.SkuID == skuID {
 			continue
@@ -79,7 +64,7 @@ func (r *Repository) RemoveFromCart(_ context.Context, skuID int64, userID uint6
 	return &cart, nil
 }
 
-func (r *Repository) ClearCart(_ context.Context, userID uint64) (*domain.UserCart, error) {
+func (r *InMemoryRepository) ClearCart(_ context.Context, userID uint64) (*domain.UserCart, error) {
 	_, ok := r.cartStorage[userID]
 	if !ok {
 		return nil, errors.New("user not found")
@@ -90,21 +75,11 @@ func (r *Repository) ClearCart(_ context.Context, userID uint64) (*domain.UserCa
 	return &domain.UserCart{}, nil
 }
 
-func (r *Repository) GetCart(_ context.Context, userID uint64) ([]byte, error) {
-	if _, ok := r.cartStorage[userID]; !ok {
-		return []byte("{}"), nil
+func (r *InMemoryRepository) GetCart(_ context.Context, userID uint64) (*domain.UserCart, error) {
+	userCart, ok := r.cartStorage[userID]
+	if !ok {
+		return &domain.UserCart{}, nil
 	}
-	var totalPrice uint32
-	for _, item := range r.cartStorage[userID].Items {
-		totalPrice += item.Price * uint32(item.Count)
-	}
-	getCartRequest := GetCartRequest{
-		Items:      r.cartStorage[userID].Items,
-		TotalPrice: totalPrice,
-	}
-	if jsonData, err := json.Marshal(getCartRequest); err != nil {
-		return nil, errors.New("failed to marshal cart data")
-	} else {
-		return jsonData, nil
-	}
+
+	return &userCart, nil
 }

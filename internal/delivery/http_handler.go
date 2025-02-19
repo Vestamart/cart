@@ -1,31 +1,20 @@
 package delivery
 
 import (
-	"bytes"
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/vestamart/homework/internal/app"
 	"github.com/vestamart/homework/internal/domain"
-	"io"
 	"net/http"
 	"strconv"
 )
 
-var ErrorEmptyClientBody = errors.New("body is empty")
-
-// Server
-type CartServer interface {
-	AddToCart(_ context.Context, skuID int64, userID uint64, count uint16) (*domain.UserCart, error)
-	RemoveFromCart(_ context.Context, skiID int64, userID uint64) (*domain.UserCart, error)
-	ClearCart(_ context.Context, userID uint64) (*domain.UserCart, error)
-	GetCart(_ context.Context, userID uint64) ([]byte, error)
-}
 type Server struct {
-	cartService CartServer
+	cartService app.CartRepository
 }
 
-func NewServer(cartService CartServer) *Server {
+func NewServer(cartService app.CartRepository) *Server {
 	return &Server{cartService: cartService}
 }
 
@@ -54,15 +43,12 @@ func (s Server) AddToCartHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer r.Body.Close()
-	body, _ := io.ReadAll(r.Body)
-	var addToCartRequest AddToCartRequest
 
-	if err := json.Unmarshal(body, &addToCartRequest); err != nil {
+	var addToCartRequest AddToCartRequest
+	if err = json.NewDecoder(r.Body).Decode(&addToCartRequest); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
-
 	}
-
 	if addToCartRequest.Count < 1 {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -70,7 +56,7 @@ func (s Server) AddToCartHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, err = s.cartService.AddToCart(r.Context(), skuID, userID, addToCartRequest.Count)
 	if err != nil {
-		if errors.Is(err, ErrorEmptyClientBody) {
+		if errors.Is(err, domain.ErrSkuNotExist) {
 			w.WriteHeader(http.StatusPreconditionFailed)
 			return
 		}
@@ -129,35 +115,11 @@ func (s Server) GetCartHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	fmt.Fprint(w, string(cart))
-}
 
-// Client Handlers
-func GetProductHandler(sku int64) (*domain.ClientRequest, error) {
-	url := "http://route256.pavl.uk:8080/get_product"
-	text := fmt.Sprintf("{\n  \"token\": \"testtoken\",\n  \"sku\": %d\n}", sku)
-	jsonBody := []byte(text)
-
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonBody))
-	if err != nil {
-		return nil, err
+	if jsonData, err := json.Marshal(cart); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	} else {
+		fmt.Fprint(w, string(jsonData))
 	}
-	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, ErrorEmptyClientBody
-	}
-	buffer, err := io.ReadAll(resp.Body)
-
-	var clientRequest domain.ClientRequest
-	if json.Unmarshal(buffer, &clientRequest) != nil {
-		return nil, errors.New("failed parsing request body")
-	}
-	return &clientRequest, nil
 }
