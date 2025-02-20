@@ -3,18 +3,19 @@ package delivery
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/vestamart/homework/internal/app"
 	"github.com/vestamart/homework/internal/domain"
+	"io"
+	"log"
 	"net/http"
 	"strconv"
 )
 
 type Server struct {
-	cartService app.CartRepository
+	cartService app.CartService
 }
 
-func NewServer(cartService app.CartRepository) *Server {
+func NewServer(cartService app.CartService) *Server {
 	return &Server{cartService: cartService}
 }
 
@@ -42,7 +43,12 @@ func (s Server) AddToCartHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	defer r.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Println("DROP ON HTTP:", err)
+		}
+	}(r.Body)
 
 	var addToCartRequest AddToCartRequest
 	if err = json.NewDecoder(r.Body).Decode(&addToCartRequest); err != nil {
@@ -116,10 +122,8 @@ func (s Server) GetCartHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if jsonData, err := json.Marshal(cart); err != nil {
+	if err := json.NewEncoder(w).Encode(cart); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
-	} else {
-		fmt.Fprint(w, string(jsonData))
 	}
 }

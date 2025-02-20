@@ -9,19 +9,23 @@ type ClientConfig struct {
 	URL   string `yaml:"url"`
 	Token string `yaml:"token"`
 }
-
+type ServerConfig struct {
+	Port string `yaml:"port"`
+}
 type Config struct {
 	Client ClientConfig `yaml:"client"`
+	Server ServerConfig `yaml:"server"`
 }
 
 func LoadConfig(path string) (*Config, error) {
-	data, err := os.ReadFile(path)
+	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
 
 	var cfg Config
-	if err = yaml.Unmarshal(data, &cfg); err != nil {
+	err = yaml.NewDecoder(file).Decode(&cfg)
+	if err != nil {
 		return nil, err
 	}
 

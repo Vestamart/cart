@@ -17,19 +17,18 @@ func main() {
 		log.Fatal(err)
 	}
 
-	httpClient := &http.Client{}
-	clientProduct := client.NewClient(httpClient, cfg.Client.URL, cfg.Client.Token)
+	clientProduct := client.NewClient(cfg.Client.URL, cfg.Client.Token)
 
 	repo := repository.NewRepository(100)
 	service := app.NewCartService(repo, clientProduct)
-	server := delivery.NewServer(service)
+	server := delivery.NewServer(*service)
 
 	router := delivery.NewRouter(server)
 	mux := http.NewServeMux()
 	router.SetupRoutes(mux)
 
-	log.Print("Server running on port 8082")
-	if err = http.ListenAndServe("127.0.0.1:8082", mux); err != nil {
+	log.Print("Server running on port" + cfg.Server.Port)
+	if err = http.ListenAndServe(cfg.Server.Port, mux); err != nil {
 		log.Fatal(err)
 	}
 }

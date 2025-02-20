@@ -17,51 +17,32 @@ func NewRepository(cap int) *InMemoryRepository {
 }
 
 func (r *InMemoryRepository) AddToCart(_ context.Context, skuID int64, userID uint64, count uint16) (*domain.UserCart, error) {
-	cart, ok := r.cartStorage[userID]
+	userCart, ok := r.cartStorage[userID]
 	if !ok {
-		cart = domain.UserCart{}
-	}
-	var itemFound bool
-	for i, item := range cart.Items {
-		if item.SkuID == skuID {
-			cart.Items[i].Count += count
-			itemFound = true
-			break
+		userCart = domain.UserCart{
+			Items: make(map[int64]uint16),
 		}
 	}
 
-	if !itemFound {
-		cart.Items = append(cart.Items, domain.Item{
-			SkuID: skuID,
-			Count: count,
-		})
+	if _, ok := userCart.Items[skuID]; ok {
+		userCart.Items[skuID] += count
+	} else {
+		userCart.Items[skuID] = count
 	}
 
-	r.cartStorage[userID] = cart
-	return &cart, nil
+	r.cartStorage[userID] = userCart
+	return &userCart, nil
 }
 
 func (r *InMemoryRepository) RemoveFromCart(_ context.Context, skuID int64, userID uint64) (*domain.UserCart, error) {
-	cart, ok := r.cartStorage[userID]
+	userCart, ok := r.cartStorage[userID]
 	if !ok {
-		cart = domain.UserCart{}
+		userCart = domain.UserCart{}
 	}
 
-	var newItem []domain.Item
-	for _, item := range cart.Items {
-		if item.SkuID == skuID {
-			continue
-		}
-		newItem = append(newItem, item)
-	}
-	cart.Items = newItem
+	delete(userCart.Items, skuID)
 
-	if len(cart.Items) == 0 {
-		delete(r.cartStorage, userID)
-	} else {
-		r.cartStorage[userID] = cart
-	}
-	return &cart, nil
+	return &userCart, nil
 }
 
 func (r *InMemoryRepository) ClearCart(_ context.Context, userID uint64) (*domain.UserCart, error) {
