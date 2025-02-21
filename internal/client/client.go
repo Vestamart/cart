@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/vestamart/homework/internal/domain"
-	"log"
 	"net/http"
 )
 
@@ -53,8 +52,7 @@ func (c *Client) ExistItem(ctx context.Context, sku int64) error {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		log.Println("http status code:", resp.StatusCode)
+	if resp.StatusCode == http.StatusNotFound {
 		return domain.ErrSkuNotExist
 	}
 	return nil

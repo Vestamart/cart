@@ -11,6 +11,18 @@ import (
 	"strconv"
 )
 
+type GetCartResponse struct {
+	Items      []GetCartItemResponse `json:"items"`
+	TotalPrice uint32                `json:"total_price"`
+}
+
+type GetCartItemResponse struct {
+	Sku   int64  `json:"sku_id"`
+	Name  string `json:"name"`
+	Count uint16 `json:"count"`
+	Price uint32 `json:"price"`
+}
+
 type Server struct {
 	cartService app.CartService
 }
@@ -60,7 +72,7 @@ func (s Server) AddToCartHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.cartService.AddToCart(r.Context(), skuID, userID, addToCartRequest.Count)
+	err = s.cartService.AddToCart(r.Context(), skuID, userID, addToCartRequest.Count)
 	if err != nil {
 		if errors.Is(err, domain.ErrSkuNotExist) {
 			w.WriteHeader(http.StatusPreconditionFailed)
@@ -91,7 +103,7 @@ func (s Server) RemoveFromCartHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.cartService.RemoveFromCart(r.Context(), skuID, userID)
+	err = s.cartService.RemoveFromCart(r.Context(), skuID, userID)
 }
 
 func (s Server) ClearCartHandler(w http.ResponseWriter, r *http.Request) {
@@ -102,7 +114,7 @@ func (s Server) ClearCartHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.cartService.ClearCart(r.Context(), userID)
+	err = s.cartService.ClearCart(r.Context(), userID)
 
 }
 
@@ -122,8 +134,21 @@ func (s Server) GetCartHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(cart); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
+	resp := GetCartResponse{
+		Items:      make([]GetCartItemResponse, 0, len(cart.Items)),
+		TotalPrice: 0,
 	}
+
+	for _, item := range cart.Items {
+		resp.Items = append(resp.Items, GetCartItemResponse{
+			Sku:   item.Sku,
+			Name:  item.Name,
+			Count: item.Count,
+			Price: item.Price,
+		})
+	}
+	resp.TotalPrice = cart.TotalPrice
+
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(cart)
 }
