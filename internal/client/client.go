@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/vestamart/homework/internal/domain"
 	"net/http"
 )
@@ -54,11 +55,14 @@ func (c *Client) ExistItem(ctx context.Context, sku int64) error {
 
 	if resp.StatusCode == http.StatusNotFound {
 		return domain.ErrSkuNotExist
+	} else if resp.StatusCode != http.StatusOK {
+		return errors.New("error exist item")
 	}
+
 	return nil
 }
 
-func (c *Client) GetProductHandler(ctx context.Context, sku int64) (*Response, error) {
+func (c *Client) GetProduct(ctx context.Context, sku int64) (*Response, error) {
 	jsonBody, err := json.Marshal(request{Token: c.token, SKU: sku})
 	if err != nil {
 		return nil, err
@@ -76,9 +80,9 @@ func (c *Client) GetProductHandler(ctx context.Context, sku int64) (*Response, e
 		return nil, err
 	}
 	defer resp.Body.Close()
-
+	fmt.Println(resp.StatusCode)
 	if resp.StatusCode != http.StatusOK {
-		return nil, domain.ErrSkuNotExist
+		return nil, errors.New("error get product")
 	}
 
 	var clientResponse Response

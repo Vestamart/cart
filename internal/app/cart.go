@@ -16,7 +16,7 @@ type CartRepository interface {
 
 type ProductService interface {
 	ExistItem(ctx context.Context, sku int64) error
-	GetProductHandler(ctx context.Context, sku int64) (*client.Response, error)
+	GetProduct(ctx context.Context, sku int64) (*client.Response, error)
 }
 
 type CartService struct {
@@ -57,7 +57,7 @@ func (s *CartService) GetCart(ctx context.Context, userID uint64) (*domain.UserC
 	var cart domain.UserCart
 
 	for sku, count := range userCart {
-		resp, err := s.productService.GetProductHandler(ctx, sku)
+		resp, err := s.productService.GetProduct(ctx, sku)
 		if err != nil {
 			return nil, err
 		}
