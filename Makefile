@@ -8,3 +8,5 @@ run:
 
 run-all: build run
 
+test-coverage:
+	go test -cover ./...

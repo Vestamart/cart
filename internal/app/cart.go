@@ -36,7 +36,6 @@ func (s *CartService) AddToCart(ctx context.Context, skuID int64, userID uint64,
 		return err
 	}
 	return s.repository.AddToCart(ctx, skuID, userID, count)
-	//return s.repository.AddToCart(ctx, skuID, userID, count)
 }
 
 func (s *CartService) RemoveFromCart(ctx context.Context, skuID int64, userID uint64) error {
