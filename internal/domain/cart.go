@@ -15,3 +15,8 @@ type CartItem struct {
 }
 
 var ErrSkuNotExist = errors.New("sku not exist")
+
+type ProductServiceResponse struct {
+	Name  string `json:"name"`
+	Price uint32 `json:"price"`
+}
