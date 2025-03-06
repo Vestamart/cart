@@ -11,7 +11,7 @@ import (
 	mm_time "time"
 
 	"github.com/gojuno/minimock/v3"
-	"github.com/vestamart/homework/internal/client"
+	"github.com/vestamart/homework/internal/domain"
 )
 
 // ProductServiceMock implements mm_app.ProductService
@@ -26,7 +26,7 @@ type ProductServiceMock struct {
 	beforeExistItemCounter uint64
 	ExistItemMock          mProductServiceMockExistItem
 
-	funcGetProduct          func(ctx context.Context, sku int64) (rp1 *client.Response, err error)
+	funcGetProduct          func(ctx context.Context, sku int64) (pp1 *domain.ProductServiceResponse, err error)
 	funcGetProductOrigin    string
 	inspectFuncGetProduct   func(ctx context.Context, sku int64)
 	afterGetProductCounter  uint64
@@ -433,7 +433,7 @@ type ProductServiceMockGetProductParamPtrs struct {
 
 // ProductServiceMockGetProductResults contains results of the ProductService.GetProduct
 type ProductServiceMockGetProductResults struct {
-	rp1 *client.Response
+	pp1 *domain.ProductServiceResponse
 	err error
 }
 
@@ -537,7 +537,7 @@ func (mmGetProduct *mProductServiceMockGetProduct) Inspect(f func(ctx context.Co
 }
 
 // Return sets up results that will be returned by ProductService.GetProduct
-func (mmGetProduct *mProductServiceMockGetProduct) Return(rp1 *client.Response, err error) *ProductServiceMock {
+func (mmGetProduct *mProductServiceMockGetProduct) Return(pp1 *domain.ProductServiceResponse, err error) *ProductServiceMock {
 	if mmGetProduct.mock.funcGetProduct != nil {
 		mmGetProduct.mock.t.Fatalf("ProductServiceMock.GetProduct mock is already set by Set")
 	}
@@ -545,13 +545,13 @@ func (mmGetProduct *mProductServiceMockGetProduct) Return(rp1 *client.Response, 
 	if mmGetProduct.defaultExpectation == nil {
 		mmGetProduct.defaultExpectation = &ProductServiceMockGetProductExpectation{mock: mmGetProduct.mock}
 	}
-	mmGetProduct.defaultExpectation.results = &ProductServiceMockGetProductResults{rp1, err}
+	mmGetProduct.defaultExpectation.results = &ProductServiceMockGetProductResults{pp1, err}
 	mmGetProduct.defaultExpectation.returnOrigin = minimock.CallerInfo(1)
 	return mmGetProduct.mock
 }
 
 // Set uses given function f to mock the ProductService.GetProduct method
-func (mmGetProduct *mProductServiceMockGetProduct) Set(f func(ctx context.Context, sku int64) (rp1 *client.Response, err error)) *ProductServiceMock {
+func (mmGetProduct *mProductServiceMockGetProduct) Set(f func(ctx context.Context, sku int64) (pp1 *domain.ProductServiceResponse, err error)) *ProductServiceMock {
 	if mmGetProduct.defaultExpectation != nil {
 		mmGetProduct.mock.t.Fatalf("Default expectation is already set for the ProductService.GetProduct method")
 	}
@@ -582,8 +582,8 @@ func (mmGetProduct *mProductServiceMockGetProduct) When(ctx context.Context, sku
 }
 
 // Then sets up ProductService.GetProduct return parameters for the expectation previously defined by the When method
-func (e *ProductServiceMockGetProductExpectation) Then(rp1 *client.Response, err error) *ProductServiceMock {
-	e.results = &ProductServiceMockGetProductResults{rp1, err}
+func (e *ProductServiceMockGetProductExpectation) Then(pp1 *domain.ProductServiceResponse, err error) *ProductServiceMock {
+	e.results = &ProductServiceMockGetProductResults{pp1, err}
 	return e.mock
 }
 
@@ -609,7 +609,7 @@ func (mmGetProduct *mProductServiceMockGetProduct) invocationsDone() bool {
 }
 
 // GetProduct implements mm_app.ProductService
-func (mmGetProduct *ProductServiceMock) GetProduct(ctx context.Context, sku int64) (rp1 *client.Response, err error) {
+func (mmGetProduct *ProductServiceMock) GetProduct(ctx context.Context, sku int64) (pp1 *domain.ProductServiceResponse, err error) {
 	mm_atomic.AddUint64(&mmGetProduct.beforeGetProductCounter, 1)
 	defer mm_atomic.AddUint64(&mmGetProduct.afterGetProductCounter, 1)
 
@@ -629,7 +629,7 @@ func (mmGetProduct *ProductServiceMock) GetProduct(ctx context.Context, sku int6
 	for _, e := range mmGetProduct.GetProductMock.expectations {
 		if minimock.Equal(*e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
-			return e.results.rp1, e.results.err
+			return e.results.pp1, e.results.err
 		}
 	}
 
@@ -661,7 +661,7 @@ func (mmGetProduct *ProductServiceMock) GetProduct(ctx context.Context, sku int6
 		if mm_results == nil {
 			mmGetProduct.t.Fatal("No results are set for the ProductServiceMock.GetProduct")
 		}
-		return (*mm_results).rp1, (*mm_results).err
+		return (*mm_results).pp1, (*mm_results).err
 	}
 	if mmGetProduct.funcGetProduct != nil {
 		return mmGetProduct.funcGetProduct(ctx, sku)

@@ -6,7 +6,6 @@ import (
 	"github.com/gojuno/minimock/v3"
 	"github.com/stretchr/testify/assert"
 	"github.com/vestamart/homework/internal/app/mock"
-	"github.com/vestamart/homework/internal/client"
 	"github.com/vestamart/homework/internal/domain"
 	"testing"
 )
@@ -199,7 +198,7 @@ func TestCartService_GetCart(t *testing.T) {
 			userID: 456,
 			prepareMocks: func() {
 				repoMock.GetCartMock.Return(map[int64]uint16{123: 2}, nil)
-				productMock.GetProductMock.When(context.Background(), int64(123)).Then(&client.Response{
+				productMock.GetProductMock.When(context.Background(), int64(123)).Then(&domain.ProductServiceResponse{
 					Name:  "Test Product",
 					Price: 100,
 				}, nil)

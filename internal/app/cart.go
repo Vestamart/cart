@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"errors"
-	"github.com/vestamart/homework/internal/client"
 	"github.com/vestamart/homework/internal/domain"
 )
 
@@ -16,7 +15,7 @@ type CartRepository interface {
 
 type ProductService interface {
 	ExistItem(ctx context.Context, sku int64) error
-	GetProduct(ctx context.Context, sku int64) (*client.Response, error)
+	GetProduct(ctx context.Context, sku int64) (*domain.ProductServiceResponse, error)
 }
 
 type CartService struct {

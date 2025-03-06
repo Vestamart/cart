@@ -10,11 +10,6 @@ import (
 	"net/http"
 )
 
-type Response struct {
-	Name  string `json:"name"`
-	Price uint32 `json:"price"`
-}
-
 type Client struct {
 	httpClient *http.Client
 	url        string
@@ -62,7 +57,7 @@ func (c *Client) ExistItem(ctx context.Context, sku int64) error {
 	return nil
 }
 
-func (c *Client) GetProduct(ctx context.Context, sku int64) (*Response, error) {
+func (c *Client) GetProduct(ctx context.Context, sku int64) (*domain.ProductServiceResponse, error) {
 	jsonBody, err := json.Marshal(request{Token: c.token, SKU: sku})
 	if err != nil {
 		return nil, err
@@ -85,7 +80,7 @@ func (c *Client) GetProduct(ctx context.Context, sku int64) (*Response, error) {
 		return nil, errors.New("error get product")
 	}
 
-	var clientResponse Response
+	var clientResponse domain.ProductServiceResponse
 	if err := json.NewDecoder(resp.Body).Decode(&clientResponse); err != nil {
 		return nil, errors.New("failed parsing request body")
 	}
