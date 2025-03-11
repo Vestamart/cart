@@ -150,5 +150,5 @@ func (s Server) GetCartHandler(w http.ResponseWriter, r *http.Request) {
 	resp.TotalPrice = cart.TotalPrice
 
 	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(cart)
+	_ = json.NewEncoder(w).Encode(resp)
 }

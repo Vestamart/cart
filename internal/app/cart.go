@@ -6,6 +6,7 @@ import (
 	"github.com/vestamart/homework/internal/domain"
 )
 
+//go:generate minimock -i github.com/vestamart/homework/internal/app.CartRepository -o ./mock/cart_repository_mock.go -n CartRepositoryMock -p mock
 type CartRepository interface {
 	AddToCart(_ context.Context, skuID int64, userID uint64, count uint16) error
 	RemoveFromCart(_ context.Context, skuID int64, userID uint64) error
@@ -13,6 +14,7 @@ type CartRepository interface {
 	GetCart(_ context.Context, userID uint64) (map[int64]uint16, error)
 }
 
+//go:generate minimock -i github.com/vestamart/homework/internal/app.ProductService -o ./mock/product_service_mock.go -n ProductServiceMock -p mock
 type ProductService interface {
 	ExistItem(ctx context.Context, sku int64) error
 	GetProduct(ctx context.Context, sku int64) (*domain.ProductServiceResponse, error)
