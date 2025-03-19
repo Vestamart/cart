@@ -1,6 +1,9 @@
-client:
+product_client:
   url: "http://route256.pavl.uk:8080/get_product"
   token: "testtoken"
 
-server:
+cart_server:
   port: ":8082"
+
+loms_server:
+  port: ":50051"
