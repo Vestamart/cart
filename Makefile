@@ -2,6 +2,8 @@ BINARY_NAME_CART=cart-service
 BINARY_NAME_LOMS=loms-service
 
 
+
+
 build-cart:
 	go build -o $(BINARY_NAME_CART) ./cmd/cart/server
 
