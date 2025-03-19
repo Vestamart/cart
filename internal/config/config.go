@@ -1,4 +1,4 @@
-package client
+package config
 
 import (
 	"gopkg.in/yaml.v3"
@@ -12,9 +12,11 @@ type ClientConfig struct {
 type ServerConfig struct {
 	Port string `yaml:"port"`
 }
+
 type Config struct {
-	Client ClientConfig `yaml:"client"`
-	Server ServerConfig `yaml:"server"`
+	ProductClient ClientConfig `yaml:"product_client"`
+	CartServer    ServerConfig `yaml:"cart_server"`
+	LOMSServer    ServerConfig `yaml:"loms_server"`
 }
 
 func LoadConfig(path string) (*Config, error) {

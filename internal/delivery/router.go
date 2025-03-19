@@ -17,4 +17,5 @@ func (r *Router) SetupRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("DELETE /user/{user_id}/cart/{sku_id}", r.server.RemoveFromCartHandler)
 	mux.HandleFunc("DELETE /user/{user_id}/cart", r.server.ClearCartHandler)
 	mux.HandleFunc("GET /user/{user_id}/cart", r.server.GetCartHandler)
+	mux.HandleFunc("POST /cart/checkout", r.server.GetCartByUserIDHandler)
 }
