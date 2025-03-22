@@ -2,7 +2,7 @@
 
 package mock
 
-//go:generate minimock -i github.com/vestamart/homework/internal/app/cart.ProductService -o product_service_mock.go -n ProductServiceMock -p mock
+//go:generate minimock -i github.com/vestamart/cart/internal/app/cart.ProductService -o product_service_mock.go -n ProductServiceMock -p mock
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	mm_time "time"
 
 	"github.com/gojuno/minimock/v3"
-	"github.com/vestamart/homework/internal/domain"
+	"github.com/vestamart/cart/internal/domain"
 )
 
 // ProductServiceMock implements mm_cart.ProductService

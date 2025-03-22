@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
-	"github.com/vestamart/homework/internal/app/cart"
+	"github.com/vestamart/cart/internal/app/cart"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

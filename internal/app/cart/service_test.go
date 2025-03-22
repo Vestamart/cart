@@ -5,9 +5,10 @@ import (
 	"errors"
 	"github.com/gojuno/minimock/v3"
 	"github.com/stretchr/testify/assert"
-	"github.com/vestamart/homework/internal/app/cart/mock"
-	"github.com/vestamart/homework/internal/domain"
-	"github.com/vestamart/homework/pkg/api/loms/v1"
+	"github.com/vestamart/cart/internal/app/cart/mock"
+	"github.com/vestamart/cart/internal/domain"
+	"github.com/vestamart/cart/internal/localErr"
+	"github.com/vestamart/loms/pkg/api/loms/v1"
 	"testing"
 )
 
@@ -48,7 +49,7 @@ func TestCartService_AddToCart(t *testing.T) {
 				productMock.ExistItemMock.Return(nil)
 				lomsMock.StocksInfoMock.Return(&loms.StocksInfoResponse{Count: 5}, nil)
 			},
-			expectedErr: domain.ItemNotEnoughErr,
+			expectedErr: localErr.ItemNotEnoughErr,
 		},
 	}
 

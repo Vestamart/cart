@@ -2,7 +2,7 @@
 
 package mock
 
-//go:generate minimock -i github.com/vestamart/homework/internal/app/cart.Repository -o repository_mock.go -n CartRepositoryMock -p mock
+//go:generate minimock -i github.com/vestamart/cart/internal/app/cart.Repository -o repository_mock.go -n CartRepositoryMock -p mock
 
 import (
 	"context"

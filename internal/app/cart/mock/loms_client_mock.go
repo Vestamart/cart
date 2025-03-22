@@ -2,7 +2,7 @@
 
 package mock
 
-//go:generate minimock -i github.com/vestamart/homework/pkg/api/loms/v1.LomsClient -o loms_client_mock.go -n LomsClientMock -p mock
+//go:generate minimock -i github.com/vestamart/loms/pkg/api/loms/v1.LomsClient -o loms_client_mock.go -n LomsClientMock -p mock
 
 import (
 	context "context"
@@ -11,7 +11,7 @@ import (
 	mm_time "time"
 
 	"github.com/gojuno/minimock/v3"
-	mm_loms "github.com/vestamart/homework/pkg/api/loms/v1"
+	mm_loms "github.com/vestamart/loms/pkg/api/loms/v1"
 	grpc "google.golang.org/grpc"
 )
 

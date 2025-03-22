@@ -9,17 +9,23 @@ type ClientConfig struct {
 	URL   string `yaml:"url"`
 	Token string `yaml:"token"`
 }
-type ServerConfig struct {
+type gRPCServerConfig struct {
+	Port string `yaml:"gRPCport"`
+}
+
+type HTTPServerConfig struct {
 	Port string `yaml:"port"`
 }
 
 type Config struct {
-	ProductClient ClientConfig `yaml:"product_client"`
-	CartServer    ServerConfig `yaml:"cart_server"`
-	LOMSServer    ServerConfig `yaml:"loms_server"`
+	ProductClient ClientConfig     `yaml:"product_client"`
+	CartServer    HTTPServerConfig `yaml:"cart_server"`
+	LOMSServer    gRPCServerConfig `yaml:"loms_server"`
 }
 
 func LoadConfig(path string) (*Config, error) {
+	//absPath, err := filepath.Abs(path)
+	//fmt.Println(absPath)
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err

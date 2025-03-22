@@ -3,7 +3,8 @@ product_client:
   token: "testtoken"
 
 cart_server:
-  port: ":8082"
+  port: "8082"
+
 
 loms_server:
-  port: ":50051"
+  gRPCport: "50051"

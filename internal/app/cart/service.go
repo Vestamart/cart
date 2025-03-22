@@ -3,11 +3,12 @@ package cart
 import (
 	"context"
 	"errors"
-	"github.com/vestamart/homework/internal/domain"
-	"github.com/vestamart/homework/pkg/api/loms/v1"
+	"github.com/vestamart/cart/internal/domain"
+	"github.com/vestamart/cart/internal/localErr"
+	"github.com/vestamart/loms/pkg/api/loms/v1"
 )
 
-//go:generate minimock -i github.com/vestamart/homework/internal/app/cart.Repository -o ./mock/repository_mock.go -n CartRepositoryMock -p mock
+//go:generate minimock -i github.com/vestamart/cart/internal/app/cart.Repository -o ./mock/repository_mock.go -n CartRepositoryMock -p mock
 type Repository interface {
 	AddToCart(_ context.Context, skuID int64, userID uint64, count uint16) error
 	RemoveFromCart(_ context.Context, skuID int64, userID uint64) error
@@ -15,13 +16,13 @@ type Repository interface {
 	GetCart(_ context.Context, userID uint64) (map[int64]uint16, error)
 }
 
-//go:generate minimock -i github.com/vestamart/homework/internal/app/cart.ProductService -o ./mock/product_service_mock.go -n ProductServiceMock -p mock
+//go:generate minimock -i github.com/vestamart/cart/internal/app/cart.ProductService -o ./mock/product_service_mock.go -n ProductServiceMock -p mock
 type ProductService interface {
 	ExistItem(ctx context.Context, sku int64) error
 	GetProduct(ctx context.Context, sku int64) (*domain.ProductServiceResponse, error)
 }
 
-//go:generate minimock -i github.com/vestamart/homework/pkg/api/loms/v1.LomsClient -o ./mock/loms_client_mock.go -n LomsClientMock -p mock
+//go:generate minimock -i github.com/vestamart/loms/pkg/api/loms/v1.LomsClient -o ./mock/loms_client_mock.go -n LomsClientMock -p mock
 type Service struct {
 	repository     Repository
 	productService ProductService
@@ -45,7 +46,7 @@ func (s *Service) AddToCart(ctx context.Context, skuID int64, userID uint64, cou
 		return err
 	}
 	if uint16(v.Count) <= count {
-		return domain.ItemNotEnoughErr
+		return localErr.ItemNotEnoughErr
 	}
 
 	return s.repository.AddToCart(ctx, skuID, userID, count)

@@ -3,8 +3,8 @@ package delivery
 import (
 	"encoding/json"
 	"errors"
-	"github.com/vestamart/homework/internal/app/cart"
-	"github.com/vestamart/homework/internal/domain"
+	"github.com/vestamart/cart/internal/app/cart"
+	"github.com/vestamart/cart/internal/localErr"
 	"io"
 	"log"
 	"net/http"
@@ -78,11 +78,11 @@ func (s Server) AddToCartHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	err = s.cartService.AddToCart(r.Context(), skuID, userID, addToCartRequest.Count)
 	if err != nil {
-		if errors.Is(err, domain.ErrSkuNotExist) {
+		if errors.Is(err, localErr.ErrSkuNotExist) {
 			w.WriteHeader(http.StatusPreconditionFailed)
 			return
 		}
-		if errors.Is(err, domain.ItemNotEnoughErr) {
+		if errors.Is(err, localErr.ItemNotEnoughErr) {
 			w.WriteHeader(http.StatusPreconditionFailed)
 			return
 		}
