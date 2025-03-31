@@ -24,7 +24,7 @@ func main() {
 
 	clientProduct := client.NewClient(cfg.ProductClient.URL, cfg.ProductClient.Token)
 
-	connLOMS, err := grpc.NewClient("localhost:"+cfg.LOMSServer.Port, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	connLOMS, err := grpc.NewClient("loms-service:"+cfg.LOMSServer.Port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(err)
 	}
