@@ -2,7 +2,7 @@
 
 package mock
 
-//go:generate minimock -i github.com/vestamart/homework/internal/app.CartRepository -o cart_repository_mock.go -n CartRepositoryMock -p mock
+//go:generate minimock -i github.com/vestamart/cart/internal/app/cart.Repository -o repository_mock.go -n CartRepositoryMock -p mock
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"github.com/gojuno/minimock/v3"
 )
 
-// CartRepositoryMock implements mm_app.CartRepository
+// CartRepositoryMock implements mm_cart.Repository
 type CartRepositoryMock struct {
 	t          minimock.Tester
 	finishOnce sync.Once
@@ -47,7 +47,7 @@ type CartRepositoryMock struct {
 	RemoveFromCartMock          mCartRepositoryMockRemoveFromCart
 }
 
-// NewCartRepositoryMock returns a mock for mm_app.CartRepository
+// NewCartRepositoryMock returns a mock for mm_cart.Repository
 func NewCartRepositoryMock(t minimock.Tester) *CartRepositoryMock {
 	m := &CartRepositoryMock{t: t}
 
@@ -85,7 +85,7 @@ type mCartRepositoryMockAddToCart struct {
 	expectedInvocationsOrigin string
 }
 
-// CartRepositoryMockAddToCartExpectation specifies expectation struct of the CartRepository.AddToCart
+// CartRepositoryMockAddToCartExpectation specifies expectation struct of the Repository.AddToCart
 type CartRepositoryMockAddToCartExpectation struct {
 	mock               *CartRepositoryMock
 	params             *CartRepositoryMockAddToCartParams
@@ -96,7 +96,7 @@ type CartRepositoryMockAddToCartExpectation struct {
 	Counter            uint64
 }
 
-// CartRepositoryMockAddToCartParams contains parameters of the CartRepository.AddToCart
+// CartRepositoryMockAddToCartParams contains parameters of the Repository.AddToCart
 type CartRepositoryMockAddToCartParams struct {
 	ctx    context.Context
 	skuID  int64
@@ -104,7 +104,7 @@ type CartRepositoryMockAddToCartParams struct {
 	count  uint16
 }
 
-// CartRepositoryMockAddToCartParamPtrs contains pointers to parameters of the CartRepository.AddToCart
+// CartRepositoryMockAddToCartParamPtrs contains pointers to parameters of the Repository.AddToCart
 type CartRepositoryMockAddToCartParamPtrs struct {
 	ctx    *context.Context
 	skuID  *int64
@@ -112,12 +112,12 @@ type CartRepositoryMockAddToCartParamPtrs struct {
 	count  *uint16
 }
 
-// CartRepositoryMockAddToCartResults contains results of the CartRepository.AddToCart
+// CartRepositoryMockAddToCartResults contains results of the Repository.AddToCart
 type CartRepositoryMockAddToCartResults struct {
 	err error
 }
 
-// CartRepositoryMockAddToCartOrigins contains origins of expectations of the CartRepository.AddToCart
+// CartRepositoryMockAddToCartOrigins contains origins of expectations of the Repository.AddToCart
 type CartRepositoryMockAddToCartExpectationOrigins struct {
 	origin       string
 	originCtx    string
@@ -136,7 +136,7 @@ func (mmAddToCart *mCartRepositoryMockAddToCart) Optional() *mCartRepositoryMock
 	return mmAddToCart
 }
 
-// Expect sets up expected params for CartRepository.AddToCart
+// Expect sets up expected params for Repository.AddToCart
 func (mmAddToCart *mCartRepositoryMockAddToCart) Expect(ctx context.Context, skuID int64, userID uint64, count uint16) *mCartRepositoryMockAddToCart {
 	if mmAddToCart.mock.funcAddToCart != nil {
 		mmAddToCart.mock.t.Fatalf("CartRepositoryMock.AddToCart mock is already set by Set")
@@ -161,7 +161,7 @@ func (mmAddToCart *mCartRepositoryMockAddToCart) Expect(ctx context.Context, sku
 	return mmAddToCart
 }
 
-// ExpectCtxParam1 sets up expected param ctx for CartRepository.AddToCart
+// ExpectCtxParam1 sets up expected param ctx for Repository.AddToCart
 func (mmAddToCart *mCartRepositoryMockAddToCart) ExpectCtxParam1(ctx context.Context) *mCartRepositoryMockAddToCart {
 	if mmAddToCart.mock.funcAddToCart != nil {
 		mmAddToCart.mock.t.Fatalf("CartRepositoryMock.AddToCart mock is already set by Set")
@@ -184,7 +184,7 @@ func (mmAddToCart *mCartRepositoryMockAddToCart) ExpectCtxParam1(ctx context.Con
 	return mmAddToCart
 }
 
-// ExpectSkuIDParam2 sets up expected param skuID for CartRepository.AddToCart
+// ExpectSkuIDParam2 sets up expected param skuID for Repository.AddToCart
 func (mmAddToCart *mCartRepositoryMockAddToCart) ExpectSkuIDParam2(skuID int64) *mCartRepositoryMockAddToCart {
 	if mmAddToCart.mock.funcAddToCart != nil {
 		mmAddToCart.mock.t.Fatalf("CartRepositoryMock.AddToCart mock is already set by Set")
@@ -207,7 +207,7 @@ func (mmAddToCart *mCartRepositoryMockAddToCart) ExpectSkuIDParam2(skuID int64) 
 	return mmAddToCart
 }
 
-// ExpectUserIDParam3 sets up expected param userID for CartRepository.AddToCart
+// ExpectUserIDParam3 sets up expected param userID for Repository.AddToCart
 func (mmAddToCart *mCartRepositoryMockAddToCart) ExpectUserIDParam3(userID uint64) *mCartRepositoryMockAddToCart {
 	if mmAddToCart.mock.funcAddToCart != nil {
 		mmAddToCart.mock.t.Fatalf("CartRepositoryMock.AddToCart mock is already set by Set")
@@ -230,7 +230,7 @@ func (mmAddToCart *mCartRepositoryMockAddToCart) ExpectUserIDParam3(userID uint6
 	return mmAddToCart
 }
 
-// ExpectCountParam4 sets up expected param count for CartRepository.AddToCart
+// ExpectCountParam4 sets up expected param count for Repository.AddToCart
 func (mmAddToCart *mCartRepositoryMockAddToCart) ExpectCountParam4(count uint16) *mCartRepositoryMockAddToCart {
 	if mmAddToCart.mock.funcAddToCart != nil {
 		mmAddToCart.mock.t.Fatalf("CartRepositoryMock.AddToCart mock is already set by Set")
@@ -253,7 +253,7 @@ func (mmAddToCart *mCartRepositoryMockAddToCart) ExpectCountParam4(count uint16)
 	return mmAddToCart
 }
 
-// Inspect accepts an inspector function that has same arguments as the CartRepository.AddToCart
+// Inspect accepts an inspector function that has same arguments as the Repository.AddToCart
 func (mmAddToCart *mCartRepositoryMockAddToCart) Inspect(f func(ctx context.Context, skuID int64, userID uint64, count uint16)) *mCartRepositoryMockAddToCart {
 	if mmAddToCart.mock.inspectFuncAddToCart != nil {
 		mmAddToCart.mock.t.Fatalf("Inspect function is already set for CartRepositoryMock.AddToCart")
@@ -264,7 +264,7 @@ func (mmAddToCart *mCartRepositoryMockAddToCart) Inspect(f func(ctx context.Cont
 	return mmAddToCart
 }
 
-// Return sets up results that will be returned by CartRepository.AddToCart
+// Return sets up results that will be returned by Repository.AddToCart
 func (mmAddToCart *mCartRepositoryMockAddToCart) Return(err error) *CartRepositoryMock {
 	if mmAddToCart.mock.funcAddToCart != nil {
 		mmAddToCart.mock.t.Fatalf("CartRepositoryMock.AddToCart mock is already set by Set")
@@ -278,14 +278,14 @@ func (mmAddToCart *mCartRepositoryMockAddToCart) Return(err error) *CartReposito
 	return mmAddToCart.mock
 }
 
-// Set uses given function f to mock the CartRepository.AddToCart method
+// Set uses given function f to mock the Repository.AddToCart method
 func (mmAddToCart *mCartRepositoryMockAddToCart) Set(f func(ctx context.Context, skuID int64, userID uint64, count uint16) (err error)) *CartRepositoryMock {
 	if mmAddToCart.defaultExpectation != nil {
-		mmAddToCart.mock.t.Fatalf("Default expectation is already set for the CartRepository.AddToCart method")
+		mmAddToCart.mock.t.Fatalf("Default expectation is already set for the Repository.AddToCart method")
 	}
 
 	if len(mmAddToCart.expectations) > 0 {
-		mmAddToCart.mock.t.Fatalf("Some expectations are already set for the CartRepository.AddToCart method")
+		mmAddToCart.mock.t.Fatalf("Some expectations are already set for the Repository.AddToCart method")
 	}
 
 	mmAddToCart.mock.funcAddToCart = f
@@ -293,7 +293,7 @@ func (mmAddToCart *mCartRepositoryMockAddToCart) Set(f func(ctx context.Context,
 	return mmAddToCart.mock
 }
 
-// When sets expectation for the CartRepository.AddToCart which will trigger the result defined by the following
+// When sets expectation for the Repository.AddToCart which will trigger the result defined by the following
 // Then helper
 func (mmAddToCart *mCartRepositoryMockAddToCart) When(ctx context.Context, skuID int64, userID uint64, count uint16) *CartRepositoryMockAddToCartExpectation {
 	if mmAddToCart.mock.funcAddToCart != nil {
@@ -309,13 +309,13 @@ func (mmAddToCart *mCartRepositoryMockAddToCart) When(ctx context.Context, skuID
 	return expectation
 }
 
-// Then sets up CartRepository.AddToCart return parameters for the expectation previously defined by the When method
+// Then sets up Repository.AddToCart return parameters for the expectation previously defined by the When method
 func (e *CartRepositoryMockAddToCartExpectation) Then(err error) *CartRepositoryMock {
 	e.results = &CartRepositoryMockAddToCartResults{err}
 	return e.mock
 }
 
-// Times sets number of times CartRepository.AddToCart should be invoked
+// Times sets number of times Repository.AddToCart should be invoked
 func (mmAddToCart *mCartRepositoryMockAddToCart) Times(n uint64) *mCartRepositoryMockAddToCart {
 	if n == 0 {
 		mmAddToCart.mock.t.Fatalf("Times of CartRepositoryMock.AddToCart mock can not be zero")
@@ -336,7 +336,7 @@ func (mmAddToCart *mCartRepositoryMockAddToCart) invocationsDone() bool {
 	return totalInvocations > 0 && (expectedInvocations == 0 || expectedInvocations == totalInvocations)
 }
 
-// AddToCart implements mm_app.CartRepository
+// AddToCart implements mm_cart.Repository
 func (mmAddToCart *CartRepositoryMock) AddToCart(ctx context.Context, skuID int64, userID uint64, count uint16) (err error) {
 	mm_atomic.AddUint64(&mmAddToCart.beforeAddToCartCounter, 1)
 	defer mm_atomic.AddUint64(&mmAddToCart.afterAddToCartCounter, 1)
@@ -489,7 +489,7 @@ type mCartRepositoryMockClearCart struct {
 	expectedInvocationsOrigin string
 }
 
-// CartRepositoryMockClearCartExpectation specifies expectation struct of the CartRepository.ClearCart
+// CartRepositoryMockClearCartExpectation specifies expectation struct of the Repository.ClearCart
 type CartRepositoryMockClearCartExpectation struct {
 	mock               *CartRepositoryMock
 	params             *CartRepositoryMockClearCartParams
@@ -500,24 +500,24 @@ type CartRepositoryMockClearCartExpectation struct {
 	Counter            uint64
 }
 
-// CartRepositoryMockClearCartParams contains parameters of the CartRepository.ClearCart
+// CartRepositoryMockClearCartParams contains parameters of the Repository.ClearCart
 type CartRepositoryMockClearCartParams struct {
 	ctx    context.Context
 	userID uint64
 }
 
-// CartRepositoryMockClearCartParamPtrs contains pointers to parameters of the CartRepository.ClearCart
+// CartRepositoryMockClearCartParamPtrs contains pointers to parameters of the Repository.ClearCart
 type CartRepositoryMockClearCartParamPtrs struct {
 	ctx    *context.Context
 	userID *uint64
 }
 
-// CartRepositoryMockClearCartResults contains results of the CartRepository.ClearCart
+// CartRepositoryMockClearCartResults contains results of the Repository.ClearCart
 type CartRepositoryMockClearCartResults struct {
 	err error
 }
 
-// CartRepositoryMockClearCartOrigins contains origins of expectations of the CartRepository.ClearCart
+// CartRepositoryMockClearCartOrigins contains origins of expectations of the Repository.ClearCart
 type CartRepositoryMockClearCartExpectationOrigins struct {
 	origin       string
 	originCtx    string
@@ -534,7 +534,7 @@ func (mmClearCart *mCartRepositoryMockClearCart) Optional() *mCartRepositoryMock
 	return mmClearCart
 }
 
-// Expect sets up expected params for CartRepository.ClearCart
+// Expect sets up expected params for Repository.ClearCart
 func (mmClearCart *mCartRepositoryMockClearCart) Expect(ctx context.Context, userID uint64) *mCartRepositoryMockClearCart {
 	if mmClearCart.mock.funcClearCart != nil {
 		mmClearCart.mock.t.Fatalf("CartRepositoryMock.ClearCart mock is already set by Set")
@@ -559,7 +559,7 @@ func (mmClearCart *mCartRepositoryMockClearCart) Expect(ctx context.Context, use
 	return mmClearCart
 }
 
-// ExpectCtxParam1 sets up expected param ctx for CartRepository.ClearCart
+// ExpectCtxParam1 sets up expected param ctx for Repository.ClearCart
 func (mmClearCart *mCartRepositoryMockClearCart) ExpectCtxParam1(ctx context.Context) *mCartRepositoryMockClearCart {
 	if mmClearCart.mock.funcClearCart != nil {
 		mmClearCart.mock.t.Fatalf("CartRepositoryMock.ClearCart mock is already set by Set")
@@ -582,7 +582,7 @@ func (mmClearCart *mCartRepositoryMockClearCart) ExpectCtxParam1(ctx context.Con
 	return mmClearCart
 }
 
-// ExpectUserIDParam2 sets up expected param userID for CartRepository.ClearCart
+// ExpectUserIDParam2 sets up expected param userID for Repository.ClearCart
 func (mmClearCart *mCartRepositoryMockClearCart) ExpectUserIDParam2(userID uint64) *mCartRepositoryMockClearCart {
 	if mmClearCart.mock.funcClearCart != nil {
 		mmClearCart.mock.t.Fatalf("CartRepositoryMock.ClearCart mock is already set by Set")
@@ -605,7 +605,7 @@ func (mmClearCart *mCartRepositoryMockClearCart) ExpectUserIDParam2(userID uint6
 	return mmClearCart
 }
 
-// Inspect accepts an inspector function that has same arguments as the CartRepository.ClearCart
+// Inspect accepts an inspector function that has same arguments as the Repository.ClearCart
 func (mmClearCart *mCartRepositoryMockClearCart) Inspect(f func(ctx context.Context, userID uint64)) *mCartRepositoryMockClearCart {
 	if mmClearCart.mock.inspectFuncClearCart != nil {
 		mmClearCart.mock.t.Fatalf("Inspect function is already set for CartRepositoryMock.ClearCart")
@@ -616,7 +616,7 @@ func (mmClearCart *mCartRepositoryMockClearCart) Inspect(f func(ctx context.Cont
 	return mmClearCart
 }
 
-// Return sets up results that will be returned by CartRepository.ClearCart
+// Return sets up results that will be returned by Repository.ClearCart
 func (mmClearCart *mCartRepositoryMockClearCart) Return(err error) *CartRepositoryMock {
 	if mmClearCart.mock.funcClearCart != nil {
 		mmClearCart.mock.t.Fatalf("CartRepositoryMock.ClearCart mock is already set by Set")
@@ -630,14 +630,14 @@ func (mmClearCart *mCartRepositoryMockClearCart) Return(err error) *CartReposito
 	return mmClearCart.mock
 }
 
-// Set uses given function f to mock the CartRepository.ClearCart method
+// Set uses given function f to mock the Repository.ClearCart method
 func (mmClearCart *mCartRepositoryMockClearCart) Set(f func(ctx context.Context, userID uint64) (err error)) *CartRepositoryMock {
 	if mmClearCart.defaultExpectation != nil {
-		mmClearCart.mock.t.Fatalf("Default expectation is already set for the CartRepository.ClearCart method")
+		mmClearCart.mock.t.Fatalf("Default expectation is already set for the Repository.ClearCart method")
 	}
 
 	if len(mmClearCart.expectations) > 0 {
-		mmClearCart.mock.t.Fatalf("Some expectations are already set for the CartRepository.ClearCart method")
+		mmClearCart.mock.t.Fatalf("Some expectations are already set for the Repository.ClearCart method")
 	}
 
 	mmClearCart.mock.funcClearCart = f
@@ -645,7 +645,7 @@ func (mmClearCart *mCartRepositoryMockClearCart) Set(f func(ctx context.Context,
 	return mmClearCart.mock
 }
 
-// When sets expectation for the CartRepository.ClearCart which will trigger the result defined by the following
+// When sets expectation for the Repository.ClearCart which will trigger the result defined by the following
 // Then helper
 func (mmClearCart *mCartRepositoryMockClearCart) When(ctx context.Context, userID uint64) *CartRepositoryMockClearCartExpectation {
 	if mmClearCart.mock.funcClearCart != nil {
@@ -661,13 +661,13 @@ func (mmClearCart *mCartRepositoryMockClearCart) When(ctx context.Context, userI
 	return expectation
 }
 
-// Then sets up CartRepository.ClearCart return parameters for the expectation previously defined by the When method
+// Then sets up Repository.ClearCart return parameters for the expectation previously defined by the When method
 func (e *CartRepositoryMockClearCartExpectation) Then(err error) *CartRepositoryMock {
 	e.results = &CartRepositoryMockClearCartResults{err}
 	return e.mock
 }
 
-// Times sets number of times CartRepository.ClearCart should be invoked
+// Times sets number of times Repository.ClearCart should be invoked
 func (mmClearCart *mCartRepositoryMockClearCart) Times(n uint64) *mCartRepositoryMockClearCart {
 	if n == 0 {
 		mmClearCart.mock.t.Fatalf("Times of CartRepositoryMock.ClearCart mock can not be zero")
@@ -688,7 +688,7 @@ func (mmClearCart *mCartRepositoryMockClearCart) invocationsDone() bool {
 	return totalInvocations > 0 && (expectedInvocations == 0 || expectedInvocations == totalInvocations)
 }
 
-// ClearCart implements mm_app.CartRepository
+// ClearCart implements mm_cart.Repository
 func (mmClearCart *CartRepositoryMock) ClearCart(ctx context.Context, userID uint64) (err error) {
 	mm_atomic.AddUint64(&mmClearCart.beforeClearCartCounter, 1)
 	defer mm_atomic.AddUint64(&mmClearCart.afterClearCartCounter, 1)
@@ -831,7 +831,7 @@ type mCartRepositoryMockGetCart struct {
 	expectedInvocationsOrigin string
 }
 
-// CartRepositoryMockGetCartExpectation specifies expectation struct of the CartRepository.GetCart
+// CartRepositoryMockGetCartExpectation specifies expectation struct of the Repository.GetCart
 type CartRepositoryMockGetCartExpectation struct {
 	mock               *CartRepositoryMock
 	params             *CartRepositoryMockGetCartParams
@@ -842,25 +842,25 @@ type CartRepositoryMockGetCartExpectation struct {
 	Counter            uint64
 }
 
-// CartRepositoryMockGetCartParams contains parameters of the CartRepository.GetCart
+// CartRepositoryMockGetCartParams contains parameters of the Repository.GetCart
 type CartRepositoryMockGetCartParams struct {
 	ctx    context.Context
 	userID uint64
 }
 
-// CartRepositoryMockGetCartParamPtrs contains pointers to parameters of the CartRepository.GetCart
+// CartRepositoryMockGetCartParamPtrs contains pointers to parameters of the Repository.GetCart
 type CartRepositoryMockGetCartParamPtrs struct {
 	ctx    *context.Context
 	userID *uint64
 }
 
-// CartRepositoryMockGetCartResults contains results of the CartRepository.GetCart
+// CartRepositoryMockGetCartResults contains results of the Repository.GetCart
 type CartRepositoryMockGetCartResults struct {
 	m1  map[int64]uint16
 	err error
 }
 
-// CartRepositoryMockGetCartOrigins contains origins of expectations of the CartRepository.GetCart
+// CartRepositoryMockGetCartOrigins contains origins of expectations of the Repository.GetCart
 type CartRepositoryMockGetCartExpectationOrigins struct {
 	origin       string
 	originCtx    string
@@ -877,7 +877,7 @@ func (mmGetCart *mCartRepositoryMockGetCart) Optional() *mCartRepositoryMockGetC
 	return mmGetCart
 }
 
-// Expect sets up expected params for CartRepository.GetCart
+// Expect sets up expected params for Repository.GetCart
 func (mmGetCart *mCartRepositoryMockGetCart) Expect(ctx context.Context, userID uint64) *mCartRepositoryMockGetCart {
 	if mmGetCart.mock.funcGetCart != nil {
 		mmGetCart.mock.t.Fatalf("CartRepositoryMock.GetCart mock is already set by Set")
@@ -902,7 +902,7 @@ func (mmGetCart *mCartRepositoryMockGetCart) Expect(ctx context.Context, userID 
 	return mmGetCart
 }
 
-// ExpectCtxParam1 sets up expected param ctx for CartRepository.GetCart
+// ExpectCtxParam1 sets up expected param ctx for Repository.GetCart
 func (mmGetCart *mCartRepositoryMockGetCart) ExpectCtxParam1(ctx context.Context) *mCartRepositoryMockGetCart {
 	if mmGetCart.mock.funcGetCart != nil {
 		mmGetCart.mock.t.Fatalf("CartRepositoryMock.GetCart mock is already set by Set")
@@ -925,7 +925,7 @@ func (mmGetCart *mCartRepositoryMockGetCart) ExpectCtxParam1(ctx context.Context
 	return mmGetCart
 }
 
-// ExpectUserIDParam2 sets up expected param userID for CartRepository.GetCart
+// ExpectUserIDParam2 sets up expected param userID for Repository.GetCart
 func (mmGetCart *mCartRepositoryMockGetCart) ExpectUserIDParam2(userID uint64) *mCartRepositoryMockGetCart {
 	if mmGetCart.mock.funcGetCart != nil {
 		mmGetCart.mock.t.Fatalf("CartRepositoryMock.GetCart mock is already set by Set")
@@ -948,7 +948,7 @@ func (mmGetCart *mCartRepositoryMockGetCart) ExpectUserIDParam2(userID uint64) *
 	return mmGetCart
 }
 
-// Inspect accepts an inspector function that has same arguments as the CartRepository.GetCart
+// Inspect accepts an inspector function that has same arguments as the Repository.GetCart
 func (mmGetCart *mCartRepositoryMockGetCart) Inspect(f func(ctx context.Context, userID uint64)) *mCartRepositoryMockGetCart {
 	if mmGetCart.mock.inspectFuncGetCart != nil {
 		mmGetCart.mock.t.Fatalf("Inspect function is already set for CartRepositoryMock.GetCart")
@@ -959,7 +959,7 @@ func (mmGetCart *mCartRepositoryMockGetCart) Inspect(f func(ctx context.Context,
 	return mmGetCart
 }
 
-// Return sets up results that will be returned by CartRepository.GetCart
+// Return sets up results that will be returned by Repository.GetCart
 func (mmGetCart *mCartRepositoryMockGetCart) Return(m1 map[int64]uint16, err error) *CartRepositoryMock {
 	if mmGetCart.mock.funcGetCart != nil {
 		mmGetCart.mock.t.Fatalf("CartRepositoryMock.GetCart mock is already set by Set")
@@ -973,14 +973,14 @@ func (mmGetCart *mCartRepositoryMockGetCart) Return(m1 map[int64]uint16, err err
 	return mmGetCart.mock
 }
 
-// Set uses given function f to mock the CartRepository.GetCart method
+// Set uses given function f to mock the Repository.GetCart method
 func (mmGetCart *mCartRepositoryMockGetCart) Set(f func(ctx context.Context, userID uint64) (m1 map[int64]uint16, err error)) *CartRepositoryMock {
 	if mmGetCart.defaultExpectation != nil {
-		mmGetCart.mock.t.Fatalf("Default expectation is already set for the CartRepository.GetCart method")
+		mmGetCart.mock.t.Fatalf("Default expectation is already set for the Repository.GetCart method")
 	}
 
 	if len(mmGetCart.expectations) > 0 {
-		mmGetCart.mock.t.Fatalf("Some expectations are already set for the CartRepository.GetCart method")
+		mmGetCart.mock.t.Fatalf("Some expectations are already set for the Repository.GetCart method")
 	}
 
 	mmGetCart.mock.funcGetCart = f
@@ -988,7 +988,7 @@ func (mmGetCart *mCartRepositoryMockGetCart) Set(f func(ctx context.Context, use
 	return mmGetCart.mock
 }
 
-// When sets expectation for the CartRepository.GetCart which will trigger the result defined by the following
+// When sets expectation for the Repository.GetCart which will trigger the result defined by the following
 // Then helper
 func (mmGetCart *mCartRepositoryMockGetCart) When(ctx context.Context, userID uint64) *CartRepositoryMockGetCartExpectation {
 	if mmGetCart.mock.funcGetCart != nil {
@@ -1004,13 +1004,13 @@ func (mmGetCart *mCartRepositoryMockGetCart) When(ctx context.Context, userID ui
 	return expectation
 }
 
-// Then sets up CartRepository.GetCart return parameters for the expectation previously defined by the When method
+// Then sets up Repository.GetCart return parameters for the expectation previously defined by the When method
 func (e *CartRepositoryMockGetCartExpectation) Then(m1 map[int64]uint16, err error) *CartRepositoryMock {
 	e.results = &CartRepositoryMockGetCartResults{m1, err}
 	return e.mock
 }
 
-// Times sets number of times CartRepository.GetCart should be invoked
+// Times sets number of times Repository.GetCart should be invoked
 func (mmGetCart *mCartRepositoryMockGetCart) Times(n uint64) *mCartRepositoryMockGetCart {
 	if n == 0 {
 		mmGetCart.mock.t.Fatalf("Times of CartRepositoryMock.GetCart mock can not be zero")
@@ -1031,7 +1031,7 @@ func (mmGetCart *mCartRepositoryMockGetCart) invocationsDone() bool {
 	return totalInvocations > 0 && (expectedInvocations == 0 || expectedInvocations == totalInvocations)
 }
 
-// GetCart implements mm_app.CartRepository
+// GetCart implements mm_cart.Repository
 func (mmGetCart *CartRepositoryMock) GetCart(ctx context.Context, userID uint64) (m1 map[int64]uint16, err error) {
 	mm_atomic.AddUint64(&mmGetCart.beforeGetCartCounter, 1)
 	defer mm_atomic.AddUint64(&mmGetCart.afterGetCartCounter, 1)
@@ -1174,7 +1174,7 @@ type mCartRepositoryMockRemoveFromCart struct {
 	expectedInvocationsOrigin string
 }
 
-// CartRepositoryMockRemoveFromCartExpectation specifies expectation struct of the CartRepository.RemoveFromCart
+// CartRepositoryMockRemoveFromCartExpectation specifies expectation struct of the Repository.RemoveFromCart
 type CartRepositoryMockRemoveFromCartExpectation struct {
 	mock               *CartRepositoryMock
 	params             *CartRepositoryMockRemoveFromCartParams
@@ -1185,26 +1185,26 @@ type CartRepositoryMockRemoveFromCartExpectation struct {
 	Counter            uint64
 }
 
-// CartRepositoryMockRemoveFromCartParams contains parameters of the CartRepository.RemoveFromCart
+// CartRepositoryMockRemoveFromCartParams contains parameters of the Repository.RemoveFromCart
 type CartRepositoryMockRemoveFromCartParams struct {
 	ctx    context.Context
 	skuID  int64
 	userID uint64
 }
 
-// CartRepositoryMockRemoveFromCartParamPtrs contains pointers to parameters of the CartRepository.RemoveFromCart
+// CartRepositoryMockRemoveFromCartParamPtrs contains pointers to parameters of the Repository.RemoveFromCart
 type CartRepositoryMockRemoveFromCartParamPtrs struct {
 	ctx    *context.Context
 	skuID  *int64
 	userID *uint64
 }
 
-// CartRepositoryMockRemoveFromCartResults contains results of the CartRepository.RemoveFromCart
+// CartRepositoryMockRemoveFromCartResults contains results of the Repository.RemoveFromCart
 type CartRepositoryMockRemoveFromCartResults struct {
 	err error
 }
 
-// CartRepositoryMockRemoveFromCartOrigins contains origins of expectations of the CartRepository.RemoveFromCart
+// CartRepositoryMockRemoveFromCartOrigins contains origins of expectations of the Repository.RemoveFromCart
 type CartRepositoryMockRemoveFromCartExpectationOrigins struct {
 	origin       string
 	originCtx    string
@@ -1222,7 +1222,7 @@ func (mmRemoveFromCart *mCartRepositoryMockRemoveFromCart) Optional() *mCartRepo
 	return mmRemoveFromCart
 }
 
-// Expect sets up expected params for CartRepository.RemoveFromCart
+// Expect sets up expected params for Repository.RemoveFromCart
 func (mmRemoveFromCart *mCartRepositoryMockRemoveFromCart) Expect(ctx context.Context, skuID int64, userID uint64) *mCartRepositoryMockRemoveFromCart {
 	if mmRemoveFromCart.mock.funcRemoveFromCart != nil {
 		mmRemoveFromCart.mock.t.Fatalf("CartRepositoryMock.RemoveFromCart mock is already set by Set")
@@ -1247,7 +1247,7 @@ func (mmRemoveFromCart *mCartRepositoryMockRemoveFromCart) Expect(ctx context.Co
 	return mmRemoveFromCart
 }
 
-// ExpectCtxParam1 sets up expected param ctx for CartRepository.RemoveFromCart
+// ExpectCtxParam1 sets up expected param ctx for Repository.RemoveFromCart
 func (mmRemoveFromCart *mCartRepositoryMockRemoveFromCart) ExpectCtxParam1(ctx context.Context) *mCartRepositoryMockRemoveFromCart {
 	if mmRemoveFromCart.mock.funcRemoveFromCart != nil {
 		mmRemoveFromCart.mock.t.Fatalf("CartRepositoryMock.RemoveFromCart mock is already set by Set")
@@ -1270,7 +1270,7 @@ func (mmRemoveFromCart *mCartRepositoryMockRemoveFromCart) ExpectCtxParam1(ctx c
 	return mmRemoveFromCart
 }
 
-// ExpectSkuIDParam2 sets up expected param skuID for CartRepository.RemoveFromCart
+// ExpectSkuIDParam2 sets up expected param skuID for Repository.RemoveFromCart
 func (mmRemoveFromCart *mCartRepositoryMockRemoveFromCart) ExpectSkuIDParam2(skuID int64) *mCartRepositoryMockRemoveFromCart {
 	if mmRemoveFromCart.mock.funcRemoveFromCart != nil {
 		mmRemoveFromCart.mock.t.Fatalf("CartRepositoryMock.RemoveFromCart mock is already set by Set")
@@ -1293,7 +1293,7 @@ func (mmRemoveFromCart *mCartRepositoryMockRemoveFromCart) ExpectSkuIDParam2(sku
 	return mmRemoveFromCart
 }
 
-// ExpectUserIDParam3 sets up expected param userID for CartRepository.RemoveFromCart
+// ExpectUserIDParam3 sets up expected param userID for Repository.RemoveFromCart
 func (mmRemoveFromCart *mCartRepositoryMockRemoveFromCart) ExpectUserIDParam3(userID uint64) *mCartRepositoryMockRemoveFromCart {
 	if mmRemoveFromCart.mock.funcRemoveFromCart != nil {
 		mmRemoveFromCart.mock.t.Fatalf("CartRepositoryMock.RemoveFromCart mock is already set by Set")
@@ -1316,7 +1316,7 @@ func (mmRemoveFromCart *mCartRepositoryMockRemoveFromCart) ExpectUserIDParam3(us
 	return mmRemoveFromCart
 }
 
-// Inspect accepts an inspector function that has same arguments as the CartRepository.RemoveFromCart
+// Inspect accepts an inspector function that has same arguments as the Repository.RemoveFromCart
 func (mmRemoveFromCart *mCartRepositoryMockRemoveFromCart) Inspect(f func(ctx context.Context, skuID int64, userID uint64)) *mCartRepositoryMockRemoveFromCart {
 	if mmRemoveFromCart.mock.inspectFuncRemoveFromCart != nil {
 		mmRemoveFromCart.mock.t.Fatalf("Inspect function is already set for CartRepositoryMock.RemoveFromCart")
@@ -1327,7 +1327,7 @@ func (mmRemoveFromCart *mCartRepositoryMockRemoveFromCart) Inspect(f func(ctx co
 	return mmRemoveFromCart
 }
 
-// Return sets up results that will be returned by CartRepository.RemoveFromCart
+// Return sets up results that will be returned by Repository.RemoveFromCart
 func (mmRemoveFromCart *mCartRepositoryMockRemoveFromCart) Return(err error) *CartRepositoryMock {
 	if mmRemoveFromCart.mock.funcRemoveFromCart != nil {
 		mmRemoveFromCart.mock.t.Fatalf("CartRepositoryMock.RemoveFromCart mock is already set by Set")
@@ -1341,14 +1341,14 @@ func (mmRemoveFromCart *mCartRepositoryMockRemoveFromCart) Return(err error) *Ca
 	return mmRemoveFromCart.mock
 }
 
-// Set uses given function f to mock the CartRepository.RemoveFromCart method
+// Set uses given function f to mock the Repository.RemoveFromCart method
 func (mmRemoveFromCart *mCartRepositoryMockRemoveFromCart) Set(f func(ctx context.Context, skuID int64, userID uint64) (err error)) *CartRepositoryMock {
 	if mmRemoveFromCart.defaultExpectation != nil {
-		mmRemoveFromCart.mock.t.Fatalf("Default expectation is already set for the CartRepository.RemoveFromCart method")
+		mmRemoveFromCart.mock.t.Fatalf("Default expectation is already set for the Repository.RemoveFromCart method")
 	}
 
 	if len(mmRemoveFromCart.expectations) > 0 {
-		mmRemoveFromCart.mock.t.Fatalf("Some expectations are already set for the CartRepository.RemoveFromCart method")
+		mmRemoveFromCart.mock.t.Fatalf("Some expectations are already set for the Repository.RemoveFromCart method")
 	}
 
 	mmRemoveFromCart.mock.funcRemoveFromCart = f
@@ -1356,7 +1356,7 @@ func (mmRemoveFromCart *mCartRepositoryMockRemoveFromCart) Set(f func(ctx contex
 	return mmRemoveFromCart.mock
 }
 
-// When sets expectation for the CartRepository.RemoveFromCart which will trigger the result defined by the following
+// When sets expectation for the Repository.RemoveFromCart which will trigger the result defined by the following
 // Then helper
 func (mmRemoveFromCart *mCartRepositoryMockRemoveFromCart) When(ctx context.Context, skuID int64, userID uint64) *CartRepositoryMockRemoveFromCartExpectation {
 	if mmRemoveFromCart.mock.funcRemoveFromCart != nil {
@@ -1372,13 +1372,13 @@ func (mmRemoveFromCart *mCartRepositoryMockRemoveFromCart) When(ctx context.Cont
 	return expectation
 }
 
-// Then sets up CartRepository.RemoveFromCart return parameters for the expectation previously defined by the When method
+// Then sets up Repository.RemoveFromCart return parameters for the expectation previously defined by the When method
 func (e *CartRepositoryMockRemoveFromCartExpectation) Then(err error) *CartRepositoryMock {
 	e.results = &CartRepositoryMockRemoveFromCartResults{err}
 	return e.mock
 }
 
-// Times sets number of times CartRepository.RemoveFromCart should be invoked
+// Times sets number of times Repository.RemoveFromCart should be invoked
 func (mmRemoveFromCart *mCartRepositoryMockRemoveFromCart) Times(n uint64) *mCartRepositoryMockRemoveFromCart {
 	if n == 0 {
 		mmRemoveFromCart.mock.t.Fatalf("Times of CartRepositoryMock.RemoveFromCart mock can not be zero")
@@ -1399,7 +1399,7 @@ func (mmRemoveFromCart *mCartRepositoryMockRemoveFromCart) invocationsDone() boo
 	return totalInvocations > 0 && (expectedInvocations == 0 || expectedInvocations == totalInvocations)
 }
 
-// RemoveFromCart implements mm_app.CartRepository
+// RemoveFromCart implements mm_cart.Repository
 func (mmRemoveFromCart *CartRepositoryMock) RemoveFromCart(ctx context.Context, skuID int64, userID uint64) (err error) {
 	mm_atomic.AddUint64(&mmRemoveFromCart.beforeRemoveFromCartCounter, 1)
 	defer mm_atomic.AddUint64(&mmRemoveFromCart.afterRemoveFromCartCounter, 1)

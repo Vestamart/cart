@@ -6,7 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/vestamart/homework/internal/domain"
+	"github.com/vestamart/cart/internal/domain"
+	"github.com/vestamart/cart/internal/localErr"
 	"net/http"
 )
 
@@ -49,7 +50,7 @@ func (c *Client) ExistItem(ctx context.Context, sku int64) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusNotFound {
-		return domain.ErrSkuNotExist
+		return localErr.ErrSkuNotExist
 	} else if resp.StatusCode != http.StatusOK {
 		return errors.New("error exist item")
 	}

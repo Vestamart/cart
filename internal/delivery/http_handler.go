@@ -3,8 +3,8 @@ package delivery
 import (
 	"encoding/json"
 	"errors"
-	"github.com/vestamart/homework/internal/app"
-	"github.com/vestamart/homework/internal/domain"
+	"github.com/vestamart/cart/internal/app/cart"
+	"github.com/vestamart/cart/internal/localErr"
 	"io"
 	"log"
 	"net/http"
@@ -24,16 +24,21 @@ type GetCartItemResponse struct {
 }
 
 type Server struct {
-	cartService app.CartService
+	cartService cart.Service
 }
 
-func NewServer(cartService app.CartService) *Server {
+func NewServer(cartService cart.Service) *Server {
 	return &Server{cartService: cartService}
 }
 
 // AddToCartRequest Request form
 type AddToCartRequest struct {
 	Count uint16 `json:"count"`
+}
+
+// GetCartByUserID
+type GetCartByUserIDRequest struct {
+	UserID uint64 `json:"user"`
 }
 
 // Server Handlers
@@ -71,10 +76,13 @@ func (s Server) AddToCartHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
 	err = s.cartService.AddToCart(r.Context(), skuID, userID, addToCartRequest.Count)
 	if err != nil {
-		if errors.Is(err, domain.ErrSkuNotExist) {
+		if errors.Is(err, localErr.ErrSkuNotExist) {
+			w.WriteHeader(http.StatusPreconditionFailed)
+			return
+		}
+		if errors.Is(err, localErr.ItemNotEnoughErr) {
 			w.WriteHeader(http.StatusPreconditionFailed)
 			return
 		}
@@ -151,4 +159,22 @@ func (s Server) GetCartHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(resp)
+}
+
+func (s Server) GetCartByUserIDHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	var getCartByUserID GetCartByUserIDRequest
+	if err := json.NewDecoder(r.Body).Decode(&getCartByUserID); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	_, err := s.cartService.CheckoutCart(r.Context(), getCartByUserID.UserID)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

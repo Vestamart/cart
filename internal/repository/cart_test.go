@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
-	"github.com/vestamart/homework/internal/app"
+	"github.com/vestamart/cart/internal/app/cart"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,7 +15,7 @@ func TestInMemoryRepository_AddToCart(t *testing.T) {
 		skuID        int64
 		userID       uint64
 		count        uint16
-		prepareCart  func(ctx context.Context, repo app.CartRepository)
+		prepareCart  func(ctx context.Context, repo cart.Repository)
 		expectedCart map[int64]uint16
 		expectedErr  error
 	}{
@@ -33,7 +33,7 @@ func TestInMemoryRepository_AddToCart(t *testing.T) {
 			skuID:  123,
 			userID: 456,
 			count:  3,
-			prepareCart: func(ctx context.Context, repo app.CartRepository) {
+			prepareCart: func(ctx context.Context, repo cart.Repository) {
 				_ = repo.AddToCart(ctx, 123, 456, 2)
 			},
 			expectedCart: map[int64]uint16{123: 5},
@@ -44,7 +44,7 @@ func TestInMemoryRepository_AddToCart(t *testing.T) {
 			skuID:  789,
 			userID: 456,
 			count:  1,
-			prepareCart: func(ctx context.Context, repo app.CartRepository) {
+			prepareCart: func(ctx context.Context, repo cart.Repository) {
 				_ = repo.AddToCart(ctx, 123, 456, 2)
 			},
 			expectedCart: map[int64]uint16{123: 2, 789: 1},
@@ -76,7 +76,7 @@ func TestInMemoryRepository_RemoveFromCart(t *testing.T) {
 		name         string
 		skuID        int64
 		userID       uint64
-		prepareCart  func(ctx context.Context, repo app.CartRepository)
+		prepareCart  func(ctx context.Context, repo cart.Repository)
 		expectedCart map[int64]uint16
 		expectedErr  error
 	}{
@@ -84,7 +84,7 @@ func TestInMemoryRepository_RemoveFromCart(t *testing.T) {
 			name:   "Remove from existing cart - success",
 			skuID:  123,
 			userID: 456,
-			prepareCart: func(ctx context.Context, repo app.CartRepository) {
+			prepareCart: func(ctx context.Context, repo cart.Repository) {
 				_ = repo.AddToCart(ctx, 123, 456, 2)
 				_ = repo.AddToCart(ctx, 789, 456, 1)
 			},
@@ -103,7 +103,7 @@ func TestInMemoryRepository_RemoveFromCart(t *testing.T) {
 			name:   "Remove non-existent item - success",
 			skuID:  999,
 			userID: 456,
-			prepareCart: func(ctx context.Context, repo app.CartRepository) {
+			prepareCart: func(ctx context.Context, repo cart.Repository) {
 				_ = repo.AddToCart(ctx, 123, 456, 2)
 			},
 			expectedCart: map[int64]uint16{123: 2},
@@ -134,13 +134,13 @@ func TestInMemoryRepository_ClearCart(t *testing.T) {
 	tests := []struct {
 		name        string
 		userID      uint64
-		prepareCart func(ctx context.Context, repo app.CartRepository)
+		prepareCart func(ctx context.Context, repo cart.Repository)
 		expectedErr error
 	}{
 		{
 			name:   "Clear existing cart - success",
 			userID: 456,
-			prepareCart: func(ctx context.Context, repo app.CartRepository) {
+			prepareCart: func(ctx context.Context, repo cart.Repository) {
 				_ = repo.AddToCart(ctx, 123, 456, 2)
 			},
 			expectedErr: nil,
@@ -179,14 +179,14 @@ func TestInMemoryRepository_GetCart(t *testing.T) {
 	tests := []struct {
 		name         string
 		userID       uint64
-		prepareCart  func(ctx context.Context, repo app.CartRepository)
+		prepareCart  func(ctx context.Context, repo cart.Repository)
 		expectedCart map[int64]uint16
 		expectedErr  error
 	}{
 		{
 			name:   "Get existing cart - success",
 			userID: 456,
-			prepareCart: func(ctx context.Context, repo app.CartRepository) {
+			prepareCart: func(ctx context.Context, repo cart.Repository) {
 				_ = repo.AddToCart(ctx, 123, 456, 2)
 				_ = repo.AddToCart(ctx, 789, 456, 1)
 			},

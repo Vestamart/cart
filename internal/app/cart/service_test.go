@@ -1,22 +1,24 @@
-package app
+package cart
 
 import (
 	"context"
 	"errors"
 	"github.com/gojuno/minimock/v3"
 	"github.com/stretchr/testify/assert"
-	"github.com/vestamart/homework/internal/app/mock"
-	"github.com/vestamart/homework/internal/domain"
+	"github.com/vestamart/cart/internal/app/cart/mock"
+	"github.com/vestamart/cart/internal/domain"
+	"github.com/vestamart/cart/internal/localErr"
+	"github.com/vestamart/loms/pkg/api/loms/v1"
 	"testing"
 )
 
 func TestCartService_AddToCart(t *testing.T) {
 	mc := minimock.NewController(t)
-
 	repoMock := mock.NewCartRepositoryMock(mc)
 	productMock := mock.NewProductServiceMock(mc)
+	lomsMock := mock.NewLomsClientMock(mc)
 
-	service := NewCartService(repoMock, productMock)
+	service := NewCartService(repoMock, productMock, lomsMock)
 
 	tests := []struct {
 		name         string
@@ -28,47 +30,34 @@ func TestCartService_AddToCart(t *testing.T) {
 	}{
 		{
 			name:   "Valid input - success",
-			skuID:  123,
+			skuID:  1003,
 			userID: 456,
 			count:  2,
 			prepareMocks: func() {
 				productMock.ExistItemMock.Return(nil)
+				lomsMock.StocksInfoMock.Return(&loms.StocksInfoResponse{Count: 5}, nil)
 				repoMock.AddToCartMock.Return(nil)
 			},
 			expectedErr: nil,
 		},
 		{
-			name:   "Invalid skuID - error",
-			skuID:  0,
+			name:   "Not enough stock - error",
+			skuID:  1003,
 			userID: 456,
-			count:  2,
+			count:  10,
 			prepareMocks: func() {
+				productMock.ExistItemMock.Return(nil)
+				lomsMock.StocksInfoMock.Return(&loms.StocksInfoResponse{Count: 5}, nil)
 			},
-			expectedErr: errors.New("skuID or userID must be greater than 0"),
-		},
-		{
-			name:   "Product does not exist - error",
-			skuID:  123,
-			userID: 456,
-			count:  2,
-			prepareMocks: func() {
-				productMock.ExistItemMock.Return(errors.New("product not found"))
-			},
-			expectedErr: errors.New("product not found"),
+			expectedErr: localErr.ItemNotEnoughErr,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.prepareMocks()
-
 			err := service.AddToCart(context.Background(), tt.skuID, tt.userID, tt.count)
-
-			if tt.expectedErr != nil {
-				assert.EqualError(t, err, tt.expectedErr.Error())
-			} else {
-				assert.NoError(t, err)
-			}
+			assert.Equal(t, tt.expectedErr, err)
 		})
 	}
 }
@@ -78,8 +67,9 @@ func TestCartService_RemoveFromCart(t *testing.T) {
 
 	repoMock := mock.NewCartRepositoryMock(mc)
 	productMock := mock.NewProductServiceMock(mc)
+	lomsMock := mock.NewLomsClientMock(mc)
 
-	service := NewCartService(repoMock, productMock)
+	service := NewCartService(repoMock, productMock, lomsMock)
 
 	tests := []struct {
 		name         string
@@ -128,8 +118,9 @@ func TestCartService_ClearCart(t *testing.T) {
 
 	repoMock := mock.NewCartRepositoryMock(mc)
 	productMock := mock.NewProductServiceMock(mc)
+	lomsMock := mock.NewLomsClientMock(mc)
 
-	service := NewCartService(repoMock, productMock)
+	service := NewCartService(repoMock, productMock, lomsMock)
 
 	tests := []struct {
 		name         string
@@ -183,8 +174,9 @@ func TestCartService_GetCart(t *testing.T) {
 
 	repoMock := mock.NewCartRepositoryMock(mc)
 	productMock := mock.NewProductServiceMock(mc)
+	lomsMock := mock.NewLomsClientMock(mc)
 
-	service := NewCartService(repoMock, productMock)
+	service := NewCartService(repoMock, productMock, lomsMock)
 
 	tests := []struct {
 		name         string
@@ -262,6 +254,56 @@ func TestCartService_GetCart(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedCart, cart)
 			}
+		})
+	}
+}
+
+func TestCartService_CheckoutCart(t *testing.T) {
+	mc := minimock.NewController(t)
+	repoMock := mock.NewCartRepositoryMock(mc)
+	productMock := mock.NewProductServiceMock(mc)
+	lomsMock := mock.NewLomsClientMock(mc)
+
+	service := NewCartService(repoMock, productMock, lomsMock)
+
+	tests := []struct {
+		name         string
+		userID       uint64
+		prepareMocks func()
+		expectedID   int64
+		expectedErr  error
+	}{
+		{
+			name:   "Successful checkout",
+			userID: 456,
+			prepareMocks: func() {
+				repoMock.GetCartMock.Return(map[int64]uint16{123: 2}, nil)
+				productMock.GetProductMock.Return(&domain.ProductServiceResponse{Name: "Test Product", Price: 100}, nil)
+				lomsMock.OrderCreateMock.Return(&loms.OrderCreateResponse{OrderId: 1}, nil)
+				repoMock.ClearCartMock.Return(nil)
+			},
+			expectedID:  1,
+			expectedErr: nil,
+		},
+		{
+			name:   "Order creation fails",
+			userID: 456,
+			prepareMocks: func() {
+				repoMock.GetCartMock.Return(map[int64]uint16{123: 2}, nil)
+				productMock.GetProductMock.Return(&domain.ProductServiceResponse{Name: "Test Product", Price: 100}, nil)
+				lomsMock.OrderCreateMock.Return(nil, errors.New("order creation failed"))
+			},
+			expectedID:  0,
+			expectedErr: errors.New("order creation failed"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.prepareMocks()
+			orderID, err := service.CheckoutCart(context.Background(), tt.userID)
+			assert.Equal(t, tt.expectedErr, err)
+			assert.Equal(t, tt.expectedID, orderID)
 		})
 	}
 }

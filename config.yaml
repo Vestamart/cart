@@ -1,6 +1,10 @@
-client:
+product_client:
   url: "http://route256.pavl.uk:8080/get_product"
   token: "testtoken"
 
-server:
-  port: ":8082"
+cart_server:
+  port: "8082"
+
+
+loms_server:
+  gRPCport: "50051"

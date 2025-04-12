@@ -2,7 +2,7 @@
 
 package mock
 
-//go:generate minimock -i github.com/vestamart/homework/internal/app.ProductService -o product_service_mock.go -n ProductServiceMock -p mock
+//go:generate minimock -i github.com/vestamart/cart/internal/app/cart.ProductService -o product_service_mock.go -n ProductServiceMock -p mock
 
 import (
 	"context"
@@ -11,10 +11,10 @@ import (
 	mm_time "time"
 
 	"github.com/gojuno/minimock/v3"
-	"github.com/vestamart/homework/internal/domain"
+	"github.com/vestamart/cart/internal/domain"
 )
 
-// ProductServiceMock implements mm_app.ProductService
+// ProductServiceMock implements mm_cart.ProductService
 type ProductServiceMock struct {
 	t          minimock.Tester
 	finishOnce sync.Once
@@ -34,7 +34,7 @@ type ProductServiceMock struct {
 	GetProductMock          mProductServiceMockGetProduct
 }
 
-// NewProductServiceMock returns a mock for mm_app.ProductService
+// NewProductServiceMock returns a mock for mm_cart.ProductService
 func NewProductServiceMock(t minimock.Tester) *ProductServiceMock {
 	m := &ProductServiceMock{t: t}
 
@@ -265,7 +265,7 @@ func (mmExistItem *mProductServiceMockExistItem) invocationsDone() bool {
 	return totalInvocations > 0 && (expectedInvocations == 0 || expectedInvocations == totalInvocations)
 }
 
-// ExistItem implements mm_app.ProductService
+// ExistItem implements mm_cart.ProductService
 func (mmExistItem *ProductServiceMock) ExistItem(ctx context.Context, sku int64) (err error) {
 	mm_atomic.AddUint64(&mmExistItem.beforeExistItemCounter, 1)
 	defer mm_atomic.AddUint64(&mmExistItem.afterExistItemCounter, 1)
@@ -608,7 +608,7 @@ func (mmGetProduct *mProductServiceMockGetProduct) invocationsDone() bool {
 	return totalInvocations > 0 && (expectedInvocations == 0 || expectedInvocations == totalInvocations)
 }
 
-// GetProduct implements mm_app.ProductService
+// GetProduct implements mm_cart.ProductService
 func (mmGetProduct *ProductServiceMock) GetProduct(ctx context.Context, sku int64) (pp1 *domain.ProductServiceResponse, err error) {
 	mm_atomic.AddUint64(&mmGetProduct.beforeGetProductCounter, 1)
 	defer mm_atomic.AddUint64(&mmGetProduct.afterGetProductCounter, 1)
