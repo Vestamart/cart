@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"sync"
 )
 
 // map[userID]map[skuID]count
@@ -10,6 +11,7 @@ type CartStorage = map[uint64]map[int64]uint16
 
 type InMemoryCartRepository struct {
 	cartStorage CartStorage
+	mu          sync.RWMutex
 }
 
 func NewRepository(cap int) *InMemoryCartRepository {
@@ -17,6 +19,8 @@ func NewRepository(cap int) *InMemoryCartRepository {
 }
 
 func (r *InMemoryCartRepository) AddToCart(_ context.Context, skuID int64, userID uint64, count uint16) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
 	userCart, ok := r.cartStorage[userID]
 	if !ok {
 		userCart = make(map[int64]uint16)
@@ -33,6 +37,9 @@ func (r *InMemoryCartRepository) AddToCart(_ context.Context, skuID int64, userI
 }
 
 func (r *InMemoryCartRepository) RemoveFromCart(_ context.Context, skuID int64, userID uint64) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
 	userCart, ok := r.cartStorage[userID]
 	if !ok {
 		userCart = make(map[int64]uint16)
@@ -44,6 +51,9 @@ func (r *InMemoryCartRepository) RemoveFromCart(_ context.Context, skuID int64, 
 }
 
 func (r *InMemoryCartRepository) ClearCart(_ context.Context, userID uint64) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
 	_, ok := r.cartStorage[userID]
 	if !ok {
 		return errors.New("user not found")
@@ -55,6 +65,9 @@ func (r *InMemoryCartRepository) ClearCart(_ context.Context, userID uint64) err
 }
 
 func (r *InMemoryCartRepository) GetCart(_ context.Context, userID uint64) (map[int64]uint16, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
 	_, ok := r.cartStorage[userID]
 	if !ok {
 		return nil, nil

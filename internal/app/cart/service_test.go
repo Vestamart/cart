@@ -9,10 +9,16 @@ import (
 	"github.com/vestamart/cart/internal/domain"
 	"github.com/vestamart/cart/internal/localErr"
 	"github.com/vestamart/loms/pkg/api/loms/v1"
+	"go.uber.org/goleak"
 	"testing"
 )
 
+func TestMain(m *testing.M) {
+	goleak.VerifyTestMain(m)
+}
+
 func TestCartService_AddToCart(t *testing.T) {
+	t.Parallel()
 	mc := minimock.NewController(t)
 	repoMock := mock.NewCartRepositoryMock(mc)
 	productMock := mock.NewProductServiceMock(mc)
@@ -54,7 +60,9 @@ func TestCartService_AddToCart(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			tt.prepareMocks()
 			err := service.AddToCart(context.Background(), tt.skuID, tt.userID, tt.count)
 			assert.Equal(t, tt.expectedErr, err)
@@ -170,27 +178,21 @@ func TestCartService_ClearCart(t *testing.T) {
 }
 
 func TestCartService_GetCart(t *testing.T) {
-	mc := minimock.NewController(t)
-
-	repoMock := mock.NewCartRepositoryMock(mc)
-	productMock := mock.NewProductServiceMock(mc)
-	lomsMock := mock.NewLomsClientMock(mc)
-
-	service := NewCartService(repoMock, productMock, lomsMock)
+	t.Parallel()
 
 	tests := []struct {
 		name         string
 		userID       uint64
-		prepareMocks func()
+		prepareMocks func(repoMock *mock.CartRepositoryMock, productMock *mock.ProductServiceMock)
 		expectedCart *domain.UserCart
 		expectedErr  error
 	}{
 		{
 			name:   "Valid cart with items - success",
 			userID: 456,
-			prepareMocks: func() {
+			prepareMocks: func(repoMock *mock.CartRepositoryMock, productMock *mock.ProductServiceMock) {
 				repoMock.GetCartMock.Return(map[int64]uint16{123: 2}, nil)
-				productMock.GetProductMock.When(context.Background(), int64(123)).Then(&domain.ProductServiceResponse{
+				productMock.GetProductMock.When(minimock.AnyContext, int64(123)).Then(&domain.ProductServiceResponse{
 					Name:  "Test Product",
 					Price: 100,
 				}, nil)
@@ -211,7 +213,7 @@ func TestCartService_GetCart(t *testing.T) {
 		{
 			name:   "Empty cart - success",
 			userID: 456,
-			prepareMocks: func() {
+			prepareMocks: func(repoMock *mock.CartRepositoryMock, _ *mock.ProductServiceMock) {
 				repoMock.GetCartMock.Return(map[int64]uint16{}, nil)
 			},
 			expectedCart: &domain.UserCart{
@@ -223,7 +225,7 @@ func TestCartService_GetCart(t *testing.T) {
 		{
 			name:   "Repository error - failure",
 			userID: 456,
-			prepareMocks: func() {
+			prepareMocks: func(repoMock *mock.CartRepositoryMock, _ *mock.ProductServiceMock) {
 				repoMock.GetCartMock.Return(nil, errors.New("database error"))
 			},
 			expectedCart: nil,
@@ -232,7 +234,7 @@ func TestCartService_GetCart(t *testing.T) {
 		{
 			name:   "Product service error - failure",
 			userID: 4567,
-			prepareMocks: func() {
+			prepareMocks: func(repoMock *mock.CartRepositoryMock, productMock *mock.ProductServiceMock) {
 				repoMock.GetCartMock.Return(map[int64]uint16{133: 2}, nil)
 				productMock.GetProductMock.When(minimock.AnyContext, int64(133)).Then(nil, errors.New("product not found"))
 			},
@@ -242,8 +244,19 @@ func TestCartService_GetCart(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt.prepareMocks()
+			t.Parallel()
+
+			mc := minimock.NewController(t)
+			defer mc.Finish()
+
+			repoMock := mock.NewCartRepositoryMock(mc)
+			productMock := mock.NewProductServiceMock(mc)
+			lomsMock := mock.NewLomsClientMock(mc)
+
+			tt.prepareMocks(repoMock, productMock)
+			service := NewCartService(repoMock, productMock, lomsMock)
 
 			cart, err := service.GetCart(context.Background(), tt.userID)
 
@@ -257,7 +270,6 @@ func TestCartService_GetCart(t *testing.T) {
 		})
 	}
 }
-
 func TestCartService_CheckoutCart(t *testing.T) {
 	mc := minimock.NewController(t)
 	repoMock := mock.NewCartRepositoryMock(mc)

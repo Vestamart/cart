@@ -9,19 +9,25 @@ import (
 	"github.com/vestamart/cart/internal/domain"
 	"github.com/vestamart/cart/internal/localErr"
 	"net/http"
+	"time"
 )
 
 type Client struct {
 	httpClient *http.Client
 	url        string
 	token      string
+	limiter    <-chan time.Time
+	ticker     *time.Ticker
 }
 
 func NewClient(url, token string) *Client {
+	ticker := time.NewTicker(time.Millisecond * 100)
 	return &Client{
-		httpClient: &http.Client{},
+		httpClient: &http.Client{Timeout: time.Second * 5},
 		url:        url,
 		token:      token,
+		limiter:    ticker.C,
+		ticker:     ticker,
 	}
 }
 
@@ -30,7 +36,18 @@ type request struct {
 	SKU   int64  `json:"sku"`
 }
 
+func (c *Client) Close() {
+	c.ticker.Stop()
+	c.httpClient.CloseIdleConnections()
+}
+
 func (c *Client) ExistItem(ctx context.Context, sku int64) error {
+	select {
+	case <-c.limiter:
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+
 	jsonBody, err := json.Marshal(request{Token: c.token, SKU: sku})
 	if err != nil {
 		return err
@@ -59,6 +76,12 @@ func (c *Client) ExistItem(ctx context.Context, sku int64) error {
 }
 
 func (c *Client) GetProduct(ctx context.Context, sku int64) (*domain.ProductServiceResponse, error) {
+	select {
+	case <-c.limiter:
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
+
 	jsonBody, err := json.Marshal(request{Token: c.token, SKU: sku})
 	if err != nil {
 		return nil, err

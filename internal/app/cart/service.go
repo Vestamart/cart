@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/vestamart/cart/internal/domain"
+	"github.com/vestamart/cart/internal/errGroup"
 	"github.com/vestamart/cart/internal/localErr"
 	"github.com/vestamart/loms/pkg/api/loms/v1"
 )
@@ -37,15 +38,29 @@ func (s *Service) AddToCart(ctx context.Context, skuID int64, userID uint64, cou
 	if skuID < 1 || userID < 1 {
 		return errors.New("skuID or userID must be greater than 0")
 	}
-	if err := s.productService.ExistItem(ctx, skuID); err != nil {
+
+	var stockInfo *loms.StocksInfoResponse
+
+	g, ctx := errGroup.NewErrGroup(ctx)
+
+	g.Go(func(ctx context.Context) error {
+		return s.productService.ExistItem(ctx, skuID)
+	})
+
+	g.Go(func(ctx context.Context) error {
+		v, err := s.lomsService.StocksInfo(ctx, &loms.StocksInfoRequest{Sku: uint32(skuID)})
+		if err != nil {
+			return err
+		}
+		stockInfo = v
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
 		return err
 	}
 
-	v, err := s.lomsService.StocksInfo(ctx, &loms.StocksInfoRequest{Sku: uint32(skuID)})
-	if err != nil {
-		return err
-	}
-	if uint16(v.Count) <= count {
+	if stockInfo.Count <= uint64(count) {
 		return localErr.ItemNotEnoughErr
 	}
 
@@ -66,22 +81,57 @@ func (s *Service) GetCart(ctx context.Context, userID uint64) (*domain.UserCart,
 		return nil, err
 	}
 
-	var totalPrice uint32
-	var cart domain.UserCart
+	var (
+		cart       domain.UserCart
+		totalPrice uint32
+	)
+	results := make(chan struct {
+		item domain.CartItem
+		err  error
+	}, len(userCart))
 
+	g, ctx := errGroup.NewErrGroup(ctx)
 	for sku, count := range userCart {
-		resp, err := s.productService.GetProduct(ctx, sku)
-		if err != nil {
-			return nil, err
-		}
-		totalPrice += uint32(count) * resp.Price
-		cart.Items = append(cart.Items, domain.CartItem{
-			Sku:   sku,
-			Name:  resp.Name,
-			Count: count,
-			Price: resp.Price,
+		sku := sku
+		count := count
+		g.Go(func(ctx context.Context) error {
+			resp, err := s.productService.GetProduct(ctx, sku)
+			if err != nil {
+				return err
+			}
+			results <- struct {
+				item domain.CartItem
+				err  error
+			}{
+				item: domain.CartItem{
+					Sku:   sku,
+					Name:  resp.Name,
+					Count: count,
+					Price: resp.Price,
+				},
+				err: nil,
+			}
+			return nil
 		})
 	}
+
+	go func() {
+		g.Wait()
+		close(results)
+	}()
+
+	for result := range results {
+		if result.err != nil {
+			return nil, g.Wait()
+		}
+		cart.Items = append(cart.Items, result.item)
+		totalPrice += result.item.Price * uint32(result.item.Count)
+	}
+
+	if err := g.Wait(); err != nil {
+		return nil, err
+	}
+
 	cart.TotalPrice = totalPrice
 	return &cart, nil
 }
