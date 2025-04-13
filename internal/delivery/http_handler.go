@@ -6,7 +6,6 @@ import (
 	"github.com/vestamart/cart/internal/app/cart"
 	"github.com/vestamart/cart/internal/localErr"
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -61,10 +60,7 @@ func (s Server) AddToCartHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			log.Println("DROP ON HTTP:", err)
-		}
+		err = Body.Close()
 	}(r.Body)
 
 	var addToCartRequest AddToCartRequest
@@ -76,6 +72,7 @@ func (s Server) AddToCartHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	err = s.cartService.AddToCart(r.Context(), skuID, userID, addToCartRequest.Count)
 	if err != nil {
 		if errors.Is(err, localErr.ErrSkuNotExist) {

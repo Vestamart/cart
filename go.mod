@@ -6,6 +6,7 @@ require (
 	github.com/gojuno/minimock/v3 v3.4.5
 	github.com/stretchr/testify v1.10.0
 	github.com/vestamart/loms v0.0.0-20250322104406-3f18970b75b0
+	go.uber.org/goleak v1.3.0
 	google.golang.org/grpc v1.71.0
 	gopkg.in/yaml.v3 v3.0.1
 )
