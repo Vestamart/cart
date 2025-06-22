@@ -44,7 +44,9 @@ func main() {
 	router := delivery.NewRouter(server)
 	mux := http.NewServeMux()
 	router.SetupRoutes(mux)
-	loggedMux := mw.LoggerHTTP(mux)
+
+	rateLimitedMux := mw.RateLimitMiddleware(100, time.Minute)(mux) // 100 запросов в минуту
+	loggedMux := mw.LoggerHTTP(rateLimitedMux)
 
 	srv := &http.Server{
 		Addr:    ":" + cfg.CartServer.Port,

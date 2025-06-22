@@ -38,29 +38,15 @@ func (s *Service) AddToCart(ctx context.Context, skuID int64, userID uint64, cou
 	if skuID < 1 || userID < 1 {
 		return errors.New("skuID or userID must be greater than 0")
 	}
-
-	var stockInfo *loms.StocksInfoResponse
-
-	g, ctx := errGroup.NewErrGroup(ctx)
-
-	g.Go(func(ctx context.Context) error {
-		return s.productService.ExistItem(ctx, skuID)
-	})
-
-	g.Go(func(ctx context.Context) error {
-		v, err := s.lomsService.StocksInfo(ctx, &loms.StocksInfoRequest{Sku: uint32(skuID)})
-		if err != nil {
-			return err
-		}
-		stockInfo = v
-		return nil
-	})
-
-	if err := g.Wait(); err != nil {
+	if err := s.productService.ExistItem(ctx, skuID); err != nil {
 		return err
 	}
 
-	if stockInfo.Count <= uint64(count) {
+	v, err := s.lomsService.StocksInfo(ctx, &loms.StocksInfoRequest{Sku: uint32(skuID)})
+	if err != nil {
+		return err
+	}
+	if uint16(v.Count) < count {
 		return localErr.ItemNotEnoughErr
 	}
 
@@ -87,7 +73,6 @@ func (s *Service) GetCart(ctx context.Context, userID uint64) (*domain.UserCart,
 	)
 	results := make(chan struct {
 		item domain.CartItem
-		err  error
 	}, len(userCart))
 
 	g, ctx := errGroup.NewErrGroup(ctx)
@@ -101,7 +86,6 @@ func (s *Service) GetCart(ctx context.Context, userID uint64) (*domain.UserCart,
 			}
 			results <- struct {
 				item domain.CartItem
-				err  error
 			}{
 				item: domain.CartItem{
 					Sku:   sku,
@@ -109,7 +93,6 @@ func (s *Service) GetCart(ctx context.Context, userID uint64) (*domain.UserCart,
 					Count: count,
 					Price: resp.Price,
 				},
-				err: nil,
 			}
 			return nil
 		})
@@ -121,9 +104,6 @@ func (s *Service) GetCart(ctx context.Context, userID uint64) (*domain.UserCart,
 	}()
 
 	for result := range results {
-		if result.err != nil {
-			return nil, g.Wait()
-		}
 		cart.Items = append(cart.Items, result.item)
 		totalPrice += result.item.Price * uint32(result.item.Count)
 	}

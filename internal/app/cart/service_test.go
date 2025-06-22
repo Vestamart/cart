@@ -18,7 +18,6 @@ func TestMain(m *testing.M) {
 }
 
 func TestCartService_AddToCart(t *testing.T) {
-	t.Parallel()
 	mc := minimock.NewController(t)
 	repoMock := mock.NewCartRepositoryMock(mc)
 	productMock := mock.NewProductServiceMock(mc)
@@ -178,8 +177,6 @@ func TestCartService_ClearCart(t *testing.T) {
 }
 
 func TestCartService_GetCart(t *testing.T) {
-	t.Parallel()
-
 	tests := []struct {
 		name         string
 		userID       uint64
