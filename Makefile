@@ -15,8 +15,7 @@ run-all: build-cart run-cart
 check-coverage:
 	go test -covermode=atomic -coverprofile=coverage.out ./...
 	go tool cover -func=coverage.out | findstr total
-	del coverage.out
-
+	rm coverage.out
 
 # Бенчмарки
 test-bench:
@@ -30,5 +29,7 @@ cognitive-load:
 cyclomatic-load:
 	gocyclo -top 10 -ignore "_mock|_test" .\internal
 
-
+# Контроль рейзов
+race-check:
+	go run -race ./cmd/server/main.go
 

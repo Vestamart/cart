@@ -11,13 +11,13 @@ func LoggerHTTP(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		reqBody, _ := io.ReadAll(r.Body)
 		r.Body = io.NopCloser(bytes.NewBuffer(reqBody))
-		log.Printf("request: method: %v, url: %v,\nbody: %v\n", r.Method, r.URL.Path, string(reqBody))
+		log.Printf("REQUEST: method=%s, url=%s, body=%s", r.Method, r.URL.Path)
 
 		rw := &responseWriter{ResponseWriter: w, statusCode: http.StatusOK}
 
 		next.ServeHTTP(rw, r)
 
-		log.Printf("response: method: %v, status: %v, body: %v\n", r.Method, rw.statusCode, rw.body.String())
+		log.Printf("RESPONSE: method=%s, status=%d, body=%s", r.Method, rw.statusCode, rw.body.String())
 	})
 }
 

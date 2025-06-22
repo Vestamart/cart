@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/vestamart/cart/internal/domain"
+	"github.com/vestamart/cart/internal/errGroup"
 	"github.com/vestamart/cart/internal/localErr"
 	"github.com/vestamart/loms/pkg/api/loms/v1"
 )
@@ -45,7 +46,7 @@ func (s *Service) AddToCart(ctx context.Context, skuID int64, userID uint64, cou
 	if err != nil {
 		return err
 	}
-	if uint16(v.Count) <= count {
+	if uint16(v.Count) < count {
 		return localErr.ItemNotEnoughErr
 	}
 
@@ -66,22 +67,51 @@ func (s *Service) GetCart(ctx context.Context, userID uint64) (*domain.UserCart,
 		return nil, err
 	}
 
-	var totalPrice uint32
-	var cart domain.UserCart
+	var (
+		cart       domain.UserCart
+		totalPrice uint32
+	)
+	results := make(chan struct {
+		item domain.CartItem
+	}, len(userCart))
 
+	g, ctx := errGroup.NewErrGroup(ctx)
 	for sku, count := range userCart {
-		resp, err := s.productService.GetProduct(ctx, sku)
-		if err != nil {
-			return nil, err
-		}
-		totalPrice += uint32(count) * resp.Price
-		cart.Items = append(cart.Items, domain.CartItem{
-			Sku:   sku,
-			Name:  resp.Name,
-			Count: count,
-			Price: resp.Price,
+		sku := sku
+		count := count
+		g.Go(func(ctx context.Context) error {
+			resp, err := s.productService.GetProduct(ctx, sku)
+			if err != nil {
+				return err
+			}
+			results <- struct {
+				item domain.CartItem
+			}{
+				item: domain.CartItem{
+					Sku:   sku,
+					Name:  resp.Name,
+					Count: count,
+					Price: resp.Price,
+				},
+			}
+			return nil
 		})
 	}
+
+	go func() {
+		g.Wait()
+		close(results)
+	}()
+
+	for result := range results {
+		cart.Items = append(cart.Items, result.item)
+		totalPrice += result.item.Price * uint32(result.item.Count)
+	}
+
+	if err := g.Wait(); err != nil {
+		return nil, err
+	}
+
 	cart.TotalPrice = totalPrice
 	return &cart, nil
 }
